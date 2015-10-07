@@ -1,5 +1,6 @@
 package jsf31kochfractalfx;
 
+import calculate.Edge;
 import calculate.KochFractal;
 import calculate.KochManager;
 import java.util.Observable;
@@ -11,18 +12,22 @@ import java.util.Observer;
 public class GenerateEdgeRunnable implements Runnable, Observer {
     private final String _type;
     private final KochFractal _koch;
+    private final int _level;
     public KochManager _manager;
 
-    public  GenerateEdgeRunnable(KochFractal koch, KochManager manager, String type){
+    public  GenerateEdgeRunnable(KochManager manager, int level, String type){
         _type = type;
-        _koch = koch;
+        _koch = new KochFractal();
         _manager = manager;
+        _level = level;
 
         _koch.addObserver(this);
     }
 
     @Override
     public void run() {
+
+        _koch.setLevel(_level);
 
         switch (_type) {
             case "l":
@@ -36,13 +41,11 @@ public class GenerateEdgeRunnable implements Runnable, Observer {
                 break;
         }
 
-
         _manager.addCount();
-
     }
 
     @Override
     public synchronized void update(Observable o, Object arg) {
-
+        _manager.addEdge((Edge)arg);
     }
 }

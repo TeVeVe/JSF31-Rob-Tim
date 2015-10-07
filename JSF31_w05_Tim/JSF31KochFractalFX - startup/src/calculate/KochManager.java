@@ -15,7 +15,7 @@ import timeutil.TimeStamp;
 /**
  * Created by tverv on 23-Sep-15.
  */
-public class KochManager implements Observer {
+public class KochManager{
 
     private JSF31KochFractalFX _application;
     private KochFractal _koch;
@@ -33,6 +33,10 @@ public class KochManager implements Observer {
 
     public void changeLevel(int nxt) {
 
+        if(nxt == 0) {
+            nxt = 1;
+        }
+
         _koch.setLevel(nxt);
         Edges.clear();
 
@@ -41,15 +45,13 @@ public class KochManager implements Observer {
 
         Count.set(0);
 
-        Thread leftEdgeThread = new Thread(new GenerateEdgeRunnable(_koch, this, "l"));
-        Thread rightEdgeThread = new Thread(new GenerateEdgeRunnable(_koch, this, "r"));
-        Thread bottomEdgeThread = new Thread(new GenerateEdgeRunnable(_koch, this, "b"));
+        Thread leftEdgeThread = new Thread(new GenerateEdgeRunnable(this, nxt, "l"));
+        Thread rightEdgeThread = new Thread(new GenerateEdgeRunnable(this, nxt, "r"));
+        Thread bottomEdgeThread = new Thread(new GenerateEdgeRunnable(this, nxt, "b"));
 
         leftEdgeThread.start();
         rightEdgeThread.start();
         bottomEdgeThread.start();
-
-
     }
 
     public synchronized void drawEdges() {
@@ -68,10 +70,16 @@ public class KochManager implements Observer {
         _application.setTextNrEdges(Integer.toString(_koch.getNrOfEdges()));
     }
 
-    public void addCount() {
-        Count.set(Count.intValue() + 1);
+    public synchronized void addEdge(Edge e) {
+        Edges.add(e);
+    }
+
+    public synchronized void addCount() {
+        Count.incrementAndGet();
+        System.out.println("Foo");
 
         if(Count.intValue() == 3){
+            System.out.println("Bar");
             ts.setEnd("After Calculating");
             Platform.runLater(new Runnable() {
                 @Override
@@ -82,10 +90,5 @@ public class KochManager implements Observer {
 
             _application.requestDrawEdges();
         }
-    }
-
-    @Override
-    public void update(Observable o, Object arg) {
-        Edges.add((Edge)arg);
     }
 }

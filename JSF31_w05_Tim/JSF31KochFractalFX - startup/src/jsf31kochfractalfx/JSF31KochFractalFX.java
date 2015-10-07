@@ -161,7 +161,6 @@ public class JSF31KochFractalFX extends Application {
         // Create Koch manager and set initial level
         resetZoom();
         kochManager = new KochManager(this);
-        Koch.addObserver(kochManager);
         kochManager.changeLevel(currentLevel);
         
         // Create the scene and add the grid pane
