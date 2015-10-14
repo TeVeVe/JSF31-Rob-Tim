@@ -8,12 +8,14 @@ import java.sql.Time;
 import java.util.ArrayList;
 import java.util.Observable;
 import java.util.Observer;
+import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
+import jsf31kochfractalfx.EdgeType;
 
 import timeutil.TimeStamp;
 
@@ -25,15 +27,30 @@ public class KochManager{
     private JSF31KochFractalFX _application;
     private KochFractal _koch;
     public ArrayList<Edge> Edges = new ArrayList<>();
-    public AtomicInteger Count;
     private TimeStamp ts;
+    private CyclicBarrier cb;
 
     public KochManager(JSF31KochFractalFX application){
         _application = application;
         _koch = application.Koch;
         ts = new TimeStamp();
-        Count = new AtomicInteger();
-        Count.set(0);
+        
+        cb = new CyclicBarrier(3, new Runnable()
+        {
+            @Override
+            public void run() {
+
+                ts.setEnd("After Calculating");
+                Platform.runLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        _application.setTextCalc(ts.toString());                    }
+                });
+                
+                System.out.println("requestDraw");
+                _application.requestDrawEdges();
+            }
+        });
     }
 
     public void changeLevel(int nxt) {
@@ -48,38 +65,24 @@ public class KochManager{
         ts = new TimeStamp();
         ts.setBegin("Before calculating");
 
-        Count.set(0);
-
-        CyclicBarrier cb = new CyclicBarrier(3, new Runnable()
-        {
-            @Override
-            public void run() {
-
-                ts.setEnd("After Calculating");
-                _application.setTextCalc(ts.toString());
-                System.out.println("requestDraw");
-                _application.requestDrawEdges();
-            }
-        });
+        
         
         try {
             ExecutorService executor = Executors.newFixedThreadPool(3);
-            for(int i = 1; i <= 3; i++)
-            {
-                Callable generateEdge = new GenerateEdgeRunnable(this,nxt,i,cb);
-                Future<ArrayList<Edge>> fut = executor.submit(generateEdge);
-                Edges.addAll(fut.get());
-
-            }
+            
+            Callable generateLeftEdge = new GenerateEdgeRunnable(nxt,EdgeType.LEFT,cb);
+            Callable generateRightEdge = new GenerateEdgeRunnable(nxt,EdgeType.RIGHT,cb);
+            Callable generateBottomEdge = new GenerateEdgeRunnable(nxt,EdgeType.BOTTOM,cb);
+            Future<ArrayList<Edge>> futLeft = executor.submit(generateLeftEdge);
+            Future<ArrayList<Edge>> futRight = executor.submit(generateRightEdge);
+            Future<ArrayList<Edge>> futBottom = executor.submit(generateBottomEdge);
             executor.shutdown();
             
-//            while (!executor.isTerminated())
-//            {
-//
-//            }
-            
+            Edges.addAll(futLeft.get());
+            Edges.addAll(futRight.get());
+            Edges.addAll(futBottom.get());
             System.out.println("Threads executed");
-            cb.reset();
+            
             
         } catch (Exception e) {
             System.out.println(e.getMessage());
@@ -104,25 +107,5 @@ public class KochManager{
 
     public synchronized void addEdge(Edge e) {
         Edges.add(e);
-    }
-
-    public synchronized void addCount() {
-        //Count.incrementAndGet();
-        //System.out.println("Foo");
-        //System.out.println(Count);
-
-        //if(Count.intValue() == 3){
-            //System.out.println("Bar");
-//            ts.setEnd("After Calculating");
-//            Platform.runLater(new Runnable() {
-//                @Override
-//                public void run() {
-//                    _application.setTextCalc(ts.toString());
-//                }
-//            });
-//
-//            System.out.println("requestDraw");
-//            _application.requestDrawEdges();
-        //}
     }
 }

@@ -14,17 +14,15 @@ import java.util.concurrent.CyclicBarrier;
  * Created by tverv on 30-Sep-15.
  */
 public class GenerateEdgeRunnable implements Callable, Observer {
-    private final int _type;
+    private final EdgeType _type;
     private final KochFractal _koch;
     private final int _level;
-    public KochManager _manager;
     private ArrayList<Edge> _edges;
     public CyclicBarrier _cb;
 
-    public  GenerateEdgeRunnable(KochManager manager, int level, int type, CyclicBarrier cb){
+    public  GenerateEdgeRunnable(int level, EdgeType type, CyclicBarrier cb){
         _type = type;
         _koch = new KochFractal();
-        _manager = manager;
         _level = level;
         _edges = new ArrayList<>();
         _cb = cb;
@@ -37,28 +35,23 @@ public class GenerateEdgeRunnable implements Callable, Observer {
 
         _koch.setLevel(_level);
 
-        switch (_type) {
-            case 1:
+        switch (_type.name()) {
+            case "LEFT":
                 _koch.generateLeftEdge();
                 break;
-            case 2:
+            case "RIGHT":
                 _koch.generateRightEdge();
                 break;
-            case 3:
+            case "BOTTOM":
                 _koch.generateBottomEdge();
                 break;
         }
 
-        System.out.println(_type);
-        _manager.addCount();
+        System.out.println(_type.name());
         
-            try {
-                _cb.await();
-            } catch(BrokenBarrierException e)
-            {
-                return _edges;
-            }
-        return null;
+        _cb.await();
+        
+        return _edges;
     }
 
     @Override
