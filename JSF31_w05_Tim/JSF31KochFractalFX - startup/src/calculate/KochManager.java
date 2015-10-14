@@ -8,6 +8,11 @@ import java.sql.Time;
 import java.util.ArrayList;
 import java.util.Observable;
 import java.util.Observer;
+import java.util.concurrent.Callable;
+import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import timeutil.TimeStamp;
@@ -45,13 +50,40 @@ public class KochManager{
 
         Count.set(0);
 
-        Thread leftEdgeThread = new Thread(new GenerateEdgeRunnable(this, nxt, "l"));
-        Thread rightEdgeThread = new Thread(new GenerateEdgeRunnable(this, nxt, "r"));
-        Thread bottomEdgeThread = new Thread(new GenerateEdgeRunnable(this, nxt, "b"));
+        CyclicBarrier cb = new CyclicBarrier(3, new Runnable()
+        {
+            @Override
+            public void run() {
 
-        leftEdgeThread.start();
-        rightEdgeThread.start();
-        bottomEdgeThread.start();
+                ts.setEnd("After Calculating");
+                _application.setTextCalc(ts.toString());
+                System.out.println("requestDraw");
+                _application.requestDrawEdges();
+            }
+        });
+        
+        try {
+            ExecutorService executor = Executors.newFixedThreadPool(3);
+            for(int i = 1; i <= 3; i++)
+            {
+                Callable generateEdge = new GenerateEdgeRunnable(this,nxt,i,cb);
+                Future<ArrayList<Edge>> fut = executor.submit(generateEdge);
+                Edges.addAll(fut.get());
+
+            }
+            executor.shutdown();
+            
+//            while (!executor.isTerminated())
+//            {
+//
+//            }
+            
+            System.out.println("Threads executed");
+            cb.reset();
+            
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
     }
 
     public synchronized void drawEdges() {
@@ -75,20 +107,22 @@ public class KochManager{
     }
 
     public synchronized void addCount() {
-        Count.incrementAndGet();
-        System.out.println("Foo");
+        //Count.incrementAndGet();
+        //System.out.println("Foo");
+        //System.out.println(Count);
 
-        if(Count.intValue() == 3){
-            System.out.println("Bar");
-            ts.setEnd("After Calculating");
-            Platform.runLater(new Runnable() {
-                @Override
-                public void run() {
-                    _application.setTextCalc(ts.toString());
-                }
-            });
-
-            _application.requestDrawEdges();
-        }
+        //if(Count.intValue() == 3){
+            //System.out.println("Bar");
+//            ts.setEnd("After Calculating");
+//            Platform.runLater(new Runnable() {
+//                @Override
+//                public void run() {
+//                    _application.setTextCalc(ts.toString());
+//                }
+//            });
+//
+//            System.out.println("requestDraw");
+//            _application.requestDrawEdges();
+        //}
     }
 }
