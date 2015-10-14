@@ -17,9 +17,8 @@ public class RW {
     private int readersActive;
     private int writersActive;
     private Lock monLock;
-    
-    public RW()
-    {
+
+    public RW() {
         monLock = new ReentrantLock();
     }
 
@@ -30,15 +29,34 @@ public class RW {
                 okToRead.await();
             }
             readersActive++;
-        }finally {
-        monLock.unlock();
+        } finally {
+            monLock.unlock();
         }
     }
 
     public void exitReader() {
+        monLock.lock();
+        try {
+            readersActive--;
+            if (readersActive == 0) {
+                okToWrite.signal();
+            }
+        } finally {
+            monLock.unlock();
+        }
     }
 
-    public void enterWriter() {
+    public void enterWriter() throws InterruptedException {
+        monLock.lock();
+        try {
+            while (writersActive > 0 || readersActive > 0) {
+                
+            }
+            okToWrite.await();
+            writersActive++;
+        }finally {
+            monLock.unlock();
+        }
     }
 
     public void exitWriter() {
