@@ -5,6 +5,7 @@
  */
 package movingballsfx;
 
+import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -16,18 +17,27 @@ public class RW {
 
     private int readersActive;
     private int writersActive;
+    private int readersWaiting;
     private Lock monLock;
+    private Condition okToRead;
+    private Condition okToWrite;
 
     public RW() {
         monLock = new ReentrantLock();
+        readersWaiting = 0;
+        writersActive = 0;
+        readersActive = 0;
     }
 
     public void enterReader() throws InterruptedException {
         monLock.lock();
         try {
-            while (writersActive > 0) {
+            while (writersActive != 0) {
+                readersWaiting++;
                 okToRead.await();
+                readersWaiting--;
             }
+
             readersActive++;
         } finally {
             monLock.unlock();
@@ -50,15 +60,27 @@ public class RW {
         monLock.lock();
         try {
             while (writersActive > 0 || readersActive > 0) {
-                
+
             }
             okToWrite.await();
             writersActive++;
-        }finally {
+        } finally {
             monLock.unlock();
         }
     }
 
     public void exitWriter() {
+        monLock.lock();
+        try {
+            writersActive--;
+            if (readersWaiting > 0) {
+                okToRead.signal();
+            } else {
+                okToWrite.signal();
+            }
+        } finally {
+            monLock.unlock();
+        }
     }
+
 }

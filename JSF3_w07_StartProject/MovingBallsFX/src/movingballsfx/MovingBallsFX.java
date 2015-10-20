@@ -33,6 +33,7 @@ public class MovingBallsFX extends Application {
     private int radius = 10;
     private int minCsX = (maxX + minX) / 2 - 100;
     private int maxCsX = (maxX + minX) / 2 + 100;
+    private RW rw = new RW();
 
     @Override
     public void start(Stage primaryStage) {
