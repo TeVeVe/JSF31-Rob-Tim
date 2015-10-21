@@ -60,11 +60,12 @@ public class RW {
         monLock.lock();
         try {
             while (writersActive > 0 || readersActive > 0) {
-            writersWaiting++;
-            okToWrite.await();
-            writersWaiting--;
-        }
-        writersActive++;  
+                writersWaiting++;
+                okToWrite.await();
+                writersWaiting--;
+            }
+
+            writersActive++;
         } finally {
             monLock.unlock();
         }
@@ -72,6 +73,7 @@ public class RW {
 
     public void exitWriter() {
         monLock.lock();
+
         try {
             writersActive--;
             if (writersWaiting > 0 && writersActive == 0) {
@@ -83,5 +85,22 @@ public class RW {
             monLock.unlock();
         }
     }
+
+//    public void exitInterruptedWriter() {
+//        monLock.lock();
+//        System.out.println("Begin EW: " + writersWaiting + " - " + writersActive);
+//        try {
+//            writersActive--;
+//            if (writersWaiting > 0 && writersActive == 0) {
+//                okToWrite.signal();
+//            } else {
+//                okToRead.signalAll();
+//            }
+//        }
+//        finally {
+//            System.out.println("After EW: " + writersWaiting + " - " + writersActive);
+//            monLock.unlock();
+//        }
+//    }
 
 }

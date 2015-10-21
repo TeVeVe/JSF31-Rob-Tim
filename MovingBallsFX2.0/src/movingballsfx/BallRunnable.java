@@ -40,14 +40,26 @@ public class BallRunnable implements Runnable {
                         monitor.exitReader();
                     }
                     else {
-                        monitor.exitWriter();
+                        if(!Thread.currentThread().isInterrupted()) {
+                            monitor.exitWriter();
+                            System.out.println("Bar");
+                        }
                     }
                 }
 
                 Thread.sleep(ball.getSpeed());
                 
             } catch (InterruptedException ex) {
-                Thread.currentThread().isInterrupted();
+                Thread.currentThread().interrupt();
+                if(ball.isInCs()) {
+                    System.out.println("Foo");
+                    if(ball.isReader()) {
+                        monitor.exitReader();
+                    } else {
+                        monitor.exitWriter();
+                    }
+                }
+
             }
         }
     }
