@@ -28,6 +28,13 @@ public class Ball {
             xPos = minX;
         }
     }
+    
+    public boolean isReader() {
+    if(color == Color.BLUE) {
+        return false;
+    }
+    return true;
+    }
 
     public int getXPos() {
         return xPos;

@@ -15,15 +15,15 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 public class RW {
 
-    private int readersActive;
-    private int writersActive;
-    private int readersWaiting;
+    private int readersActive,writersActive, readersWaiting, writersWaiting;
     private Lock monLock;
     private Condition okToRead;
     private Condition okToWrite;
 
     public RW() {
         monLock = new ReentrantLock();
+        okToRead = monLock.newCondition();
+        okToWrite = monLock.newCondition();
         readersWaiting = 0;
         writersActive = 0;
         readersActive = 0;
@@ -60,10 +60,11 @@ public class RW {
         monLock.lock();
         try {
             while (writersActive > 0 || readersActive > 0) {
-
-            }
+            writersWaiting++;
             okToWrite.await();
-            writersActive++;
+            writersWaiting--;
+        }
+        writersActive++;  
         } finally {
             monLock.unlock();
         }
@@ -73,10 +74,10 @@ public class RW {
         monLock.lock();
         try {
             writersActive--;
-            if (readersWaiting > 0) {
-                okToRead.signal();
-            } else {
+            if (writersWaiting > 0 && writersActive == 0) {
                 okToWrite.signal();
+            } else {
+                okToRead.signalAll();
             }
         } finally {
             monLock.unlock();
