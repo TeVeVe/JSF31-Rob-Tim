@@ -16,3 +16,5 @@ JSF31_w05_Tim/JSF31KochFractalFX - startup/.idea/
 *.properties
 /JSF3_w07_StartProject/MovingBallsFX/MovingBallsFX2.0/nbproject/private/
 /JSF3_w07_StartProject/MovingBallsFX/MovingBallsFX2.0/build/
+JSF3_w07_StartProject/MovingBallsFX/.idea/
+*.iml

@@ -18,12 +18,14 @@ public class GenerateEdgeCallable implements Callable, Observer {
     private final KochFractal _koch;
     private final int _level;
     private ArrayList<Edge> _edges;
+    public CyclicBarrier _cb;
 
     public GenerateEdgeCallable(int level, EdgeType type, CyclicBarrier cb){
         _type = type;
         _koch = new KochFractal();
         _level = level;
         _edges = new ArrayList<>();
+        _cb = cb;
 
         _koch.addObserver(this);
     }
