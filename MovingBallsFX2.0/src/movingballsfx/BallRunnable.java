@@ -60,6 +60,10 @@ public class BallRunnable implements Runnable {
                     }
                 }
 
+                else if(ball.isEnteringCs()) {
+                    monitor.waitingWriterInterupted();
+                }
+
             }
         }
     }

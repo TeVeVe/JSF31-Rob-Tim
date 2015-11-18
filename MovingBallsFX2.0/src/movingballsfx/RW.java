@@ -86,6 +86,16 @@ public class RW {
         }
     }
 
+    public void waitingWriterInterupted() {
+        monLock.lock();
+
+        try {
+            writersWaiting--;
+        } finally {
+            monLock.unlock();
+        }
+    }
+
 //    public void exitInterruptedWriter() {
 //        monLock.lock();
 //        System.out.println("Begin EW: " + writersWaiting + " - " + writersActive);
