@@ -1,8 +1,7 @@
 package calculate;
 
 import javafx.application.Platform;
-import javafx.concurrent.Task;
-import jsf31kochfractalfx.GenerateEdgeTask;
+import jsf31kochfractalfx.GenerateEdgeCallable;
 import jsf31kochfractalfx.JSF31KochFractalFX;
 
 import java.util.ArrayList;
@@ -23,9 +22,9 @@ public class KochManager{
     private TimeStamp ts;
     private CyclicBarrier cb;
     private ExecutorService executor;
-    GenerateEdgeTask generateLeftEdge;
-    GenerateEdgeTask generateRightEdge;
-    GenerateEdgeTask generateBottomEdge;
+    private Future<ArrayList<Edge>> futLeft;
+    private Future<ArrayList<Edge>> futRight;
+    private Future<ArrayList<Edge>> futBottom;
 
     public KochManager(JSF31KochFractalFX application){
         _application = application;
@@ -40,20 +39,15 @@ public class KochManager{
                 Platform.runLater(new Runnable() {
                     @Override
                     public void run() {
-                        Edges.addAll(generateLeftEdge.getValue());
-                        Edges.addAll(generateRightEdge.getValue());
-                        Edges.addAll(generateBottomEdge.getValue());
-
                         _application.setTextCalc(ts.toString());                    }
                 });
 
                 System.out.println("requestDraw");
-
                 _application.requestDrawEdges();
             }
         });
 
-        executor = Executors.newFixedThreadPool(4);
+        executor = Executors.newFixedThreadPool(3);
     }
 
     public void changeLevel(int nxt) {
@@ -71,48 +65,18 @@ public class KochManager{
         
         
         try {
-            generateLeftEdge = _application.createTask(EdgeType.LEFT);
-            generateRightEdge =_application.createTask(EdgeType.RIGHT);
-            generateBottomEdge = _application.createTask(EdgeType.BOTTOM);
-
-            executor.submit(generateLeftEdge);
-            executor.submit(generateRightEdge);
-            executor.submit(generateBottomEdge);
-
+            Callable generateLeftEdge = new GenerateEdgeCallable(nxt,EdgeType.LEFT,cb);
+            Callable generateRightEdge = new GenerateEdgeCallable(nxt,EdgeType.RIGHT,cb);
+            Callable generateBottomEdge = new GenerateEdgeCallable(nxt,EdgeType.BOTTOM,cb);
+            futLeft = executor.submit(generateLeftEdge);
+            futRight = executor.submit(generateRightEdge);
+            futBottom = executor.submit(generateBottomEdge);
             System.out.println("Threads executed");
 
-            executor.execute(new Task<Void>() {
-                @Override
-                protected Void call() throws Exception {
-
-                    _application.clearKochPanel();
-
-                    while (!generateLeftEdge.isDone() || !generateRightEdge.isDone() || !generateBottomEdge.isDone()) {
-
-                        if(!generateLeftEdge.isDone()) {
-                            Edges.addAll(generateLeftEdge.getValue());
-                        }
-
-                        if(!generateRightEdge.isDone()) {
-                            Edges.addAll(generateRightEdge.getValue());
-                        }
-
-                        if(!generateBottomEdge.isDone()) {
-                            Edges.addAll(generateBottomEdge.getValue());
-                        }
-
-                        for(Edge e: Edges) {
-                            _application.drawEdge(e);
-                        }
-                    }
-
-                    return null;
-                }
-            });
-
             executor.execute(new Runnable() {
                 @Override
                 public void run() {
+                    addEdges(futLeft);
                     try {
                         cb.await();
                     } catch (InterruptedException e) {
@@ -126,6 +90,7 @@ public class KochManager{
             executor.execute(new Runnable() {
                 @Override
                 public void run() {
+                    addEdges(futRight);
                     try {
                         cb.await();
                     } catch (InterruptedException e) {
@@ -139,6 +104,7 @@ public class KochManager{
             executor.execute(new Runnable() {
                 @Override
                 public void run() {
+                    addEdges(futBottom);
                     try {
                         cb.await();
                     } catch (InterruptedException e) {
@@ -148,10 +114,21 @@ public class KochManager{
                     }
                 }
             });
+
+
             
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
+    }
+
+    public synchronized void addEdges(Future<ArrayList<Edge>> fut) {
+        try {
+            Edges.addAll(fut.get());
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+        }
+
     }
 
     public synchronized void drawEdges() {

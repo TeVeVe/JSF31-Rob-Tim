@@ -7,14 +7,12 @@ package jsf31kochfractalfx;
 import calculate.*;
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.canvas.*;
-import javafx.scene.canvas.Canvas;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
@@ -22,9 +20,6 @@ import javafx.scene.input.*;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
-
-import java.awt.*;
-import java.util.ArrayList;
 
 
 /**
@@ -41,9 +36,6 @@ public class JSF31KochFractalFX extends Application {
     private double startPressedY = 0.0;
     private double lastDragX = 0.0;
     private double lastDragY = 0.0;
-    private GenerateEdgeTask generateLeftEdge;
-    private GenerateEdgeTask generateRightEdge;
-    private GenerateEdgeTask generateBottomEdge;
 
     // Koch manager
     // TO DO: Create class KochManager in package calculate
@@ -340,52 +332,6 @@ public class JSF31KochFractalFX extends Application {
                 e.X2 * zoom + zoomTranslateX,
                 e.Y2 * zoom + zoomTranslateY,
                 e.color);
-    }
-
-    public GenerateEdgeTask createTask(EdgeType type) {
-        switch (type.name()) {
-            case "LEFT":
-                if(generateLeftEdge != null) {
-                    progressBarLeft.progressProperty().unbind();
-                    messageLabelLeft.textProperty().unbind();
-                }
-
-                generateLeftEdge = new GenerateEdgeTask(currentLevel,type);
-
-                progressBarLeft.setProgress(0);
-                progressBarLeft.progressProperty().bind(generateLeftEdge.progressProperty());
-                messageLabelLeft.textProperty().bind(generateLeftEdge.messageProperty());
-
-                return generateLeftEdge;
-            case "RIGHT":
-                if(generateRightEdge != null) {
-                    progressBarRight.progressProperty().unbind();
-                    messageLabelRight.textProperty().unbind();
-                }
-
-                generateRightEdge = new GenerateEdgeTask(currentLevel,type);
-
-                progressBarRight.setProgress(0);
-                progressBarRight.progressProperty().bind(generateRightEdge.progressProperty());
-                messageLabelRight.textProperty().bind(generateRightEdge.messageProperty());
-
-                return generateRightEdge;
-            case "BOTTOM":
-                if(generateBottomEdge != null) {
-                    progressBarBottom.progressProperty().unbind();
-                    messageLabelBottom.textProperty().unbind();
-                }
-
-                generateBottomEdge = new GenerateEdgeTask(currentLevel,type);
-
-                progressBarBottom.setProgress(0);
-                progressBarBottom.progressProperty().bind(generateBottomEdge.progressProperty());
-                messageLabelBottom.textProperty().bind(generateBottomEdge.messageProperty());
-
-                return generateBottomEdge;
-        }
-
-        return null;
     }
 
     /**
