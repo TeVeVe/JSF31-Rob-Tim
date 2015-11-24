@@ -21,6 +21,7 @@ public class GenerateEdgeTask extends Task<ArrayList<Edge>> implements Observer 
     private final int _level;
     private ArrayList<Edge> _edges;
     private int progress;
+    private int currentEdge;
 
     public GenerateEdgeTask(int level, EdgeType type){
         _type = type;
@@ -56,8 +57,19 @@ public class GenerateEdgeTask extends Task<ArrayList<Edge>> implements Observer 
     @Override
     public synchronized void update(Observable o, Object arg) {
         _edges.add((Edge)arg);
-        updateMessage("Number of Edges: " + _edges.size());
-        updateProgress(_edges.size(), _koch.getNrOfEdges() / 3);
+        
+        currentEdge++;
+        updateMessage("Number of Edges: " + currentEdge);
+        updateProgress(currentEdge, _koch.getNrOfEdges() / 3);
         updateValue(_edges);
+        
+        try {
+            Thread.sleep(1);
+        } catch (InterruptedException ex) {
+            if (isCancelled()) {
+                _koch.cancel();
+                cancelled();
+            }
+        }
     }
 }

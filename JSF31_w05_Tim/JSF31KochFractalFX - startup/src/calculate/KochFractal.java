@@ -74,4 +74,8 @@ public class KochFractal extends Observable {
     public int getNrOfEdges() {
         return nrOfEdges;
     }
+
+    boolean isCancelled() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
 }

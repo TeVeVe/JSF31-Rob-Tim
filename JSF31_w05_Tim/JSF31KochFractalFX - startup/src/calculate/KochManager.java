@@ -7,6 +7,9 @@ import jsf31kochfractalfx.JSF31KochFractalFX;
 
 import java.util.ArrayList;
 import java.util.concurrent.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javafx.scene.paint.Color;
 
 import jsf31kochfractalfx.EdgeType;
 
@@ -40,11 +43,15 @@ public class KochManager{
                 Platform.runLater(new Runnable() {
                     @Override
                     public void run() {
-                        Edges.addAll(generateLeftEdge.getValue());
-                        Edges.addAll(generateRightEdge.getValue());
-                        Edges.addAll(generateBottomEdge.getValue());
-
-                        _application.setTextCalc(ts.toString());                    }
+                        try {
+                        Edges.addAll(generateLeftEdge.get());
+                        Edges.addAll(generateRightEdge.get());
+                        Edges.addAll(generateBottomEdge.get());
+                        } catch (InterruptedException | ExecutionException ex) {
+                            Logger.getLogger(KochManager.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                        _application.setTextCalc(ts.toString());                    
+                    }
                 });
 
                 System.out.println("requestDraw");
@@ -169,6 +176,13 @@ public class KochManager{
         _application.setTextDraw(ts.toString());
         _application.setTextNrEdges(Integer.toString(_koch.getNrOfEdges()));
     }
+    
+//    public synchronized void updateEdges(Edge e) {
+//        Edges.add(e);
+//        Edge e1 = e.clone();
+//        e1.color = Color.WHITE;
+//        _application.callDrawEdge(e1);
+//    }
 
     public synchronized void addEdge(Edge e) {
         Edges.add(e);

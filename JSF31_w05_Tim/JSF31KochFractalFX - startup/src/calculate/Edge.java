@@ -22,4 +22,9 @@ public class Edge {
         this.Y2 = Y2;
         this.color = color;
     }
+    
+    @Override
+    public Edge clone() {
+        return new Edge(X1, Y1, X2, Y2, color);
+    }
 }
