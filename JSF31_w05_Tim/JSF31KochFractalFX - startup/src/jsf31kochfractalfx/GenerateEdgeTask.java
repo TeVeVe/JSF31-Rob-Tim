@@ -22,12 +22,14 @@ public class GenerateEdgeTask extends Task<ArrayList<Edge>> implements Observer 
     private ArrayList<Edge> _edges;
     private int progress;
     private int currentEdge;
+    private KochManager km;
 
-    public GenerateEdgeTask(int level, EdgeType type){
+    public GenerateEdgeTask(int level, EdgeType type, KochManager km){
         _type = type;
         _koch = new KochFractal();
         _level = level;
         _edges = new ArrayList<>();
+        this.km = km;
 
         _koch.addObserver(this);
     }
@@ -62,6 +64,7 @@ public class GenerateEdgeTask extends Task<ArrayList<Edge>> implements Observer 
         updateMessage("Number of Edges: " + currentEdge);
         updateProgress(currentEdge, _koch.getNrOfEdges() / 3);
         updateValue(_edges);
+        km.updateEdges((Edge)arg);
         
         try {
             Thread.sleep(1);

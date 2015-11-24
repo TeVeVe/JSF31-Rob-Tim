@@ -116,7 +116,7 @@ public class KochManager{
                     return null;
                 }
             });
-
+            
             executor.execute(new Runnable() {
                 @Override
                 public void run() {
@@ -177,12 +177,12 @@ public class KochManager{
         _application.setTextNrEdges(Integer.toString(_koch.getNrOfEdges()));
     }
     
-//    public synchronized void updateEdges(Edge e) {
-//        Edges.add(e);
-//        Edge e1 = e.clone();
-//        e1.color = Color.WHITE;
-//        _application.callDrawEdge(e1);
-//    }
+    public synchronized void updateEdges(Edge e) {
+        Edges.add(e);
+        Edge e1 = e.clone();
+        e1.color = Color.WHITE;
+        _application.callDrawEdge(e1);
+    }
 
     public synchronized void addEdge(Edge e) {
         Edges.add(e);

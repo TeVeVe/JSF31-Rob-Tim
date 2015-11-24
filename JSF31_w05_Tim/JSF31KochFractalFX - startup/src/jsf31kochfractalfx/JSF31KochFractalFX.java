@@ -226,6 +226,15 @@ public class JSF31KochFractalFX extends Application {
         gc.fillRect(0.0,0.0,kpWidth,kpHeight);
     }
     
+    public synchronized void callDrawEdge(final Edge e) {
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                drawEdge(e);
+            }
+        });
+    }
+        
     public void drawEdge(Edge e) {
         // Graphics
         GraphicsContext gc = kochPanel.getGraphicsContext2D();
@@ -350,7 +359,7 @@ public class JSF31KochFractalFX extends Application {
                     messageLabelLeft.textProperty().unbind();
                 }
 
-                generateLeftEdge = new GenerateEdgeTask(currentLevel,type);
+                generateLeftEdge = new GenerateEdgeTask(currentLevel,type, kochManager);
 
                 progressBarLeft.setProgress(0);
                 progressBarLeft.progressProperty().bind(generateLeftEdge.progressProperty());
@@ -363,7 +372,7 @@ public class JSF31KochFractalFX extends Application {
                     messageLabelRight.textProperty().unbind();
                 }
 
-                generateRightEdge = new GenerateEdgeTask(currentLevel,type);
+                generateRightEdge = new GenerateEdgeTask(currentLevel,type, kochManager);
 
                 progressBarRight.setProgress(0);
                 progressBarRight.progressProperty().bind(generateRightEdge.progressProperty());
@@ -376,7 +385,7 @@ public class JSF31KochFractalFX extends Application {
                     messageLabelBottom.textProperty().unbind();
                 }
 
-                generateBottomEdge = new GenerateEdgeTask(currentLevel,type);
+                generateBottomEdge = new GenerateEdgeTask(currentLevel,type, kochManager);
 
                 progressBarBottom.setProgress(0);
                 progressBarBottom.progressProperty().bind(generateBottomEdge.progressProperty());
