@@ -51,19 +51,29 @@ public class GenerateEdgeTask extends Task<ArrayList<Edge>> implements Observer 
                 _koch.generateBottomEdge();
                 break;
         }
-
+        
         System.out.println(_type.name());
         return _edges;
+    }
+    
+    @Override
+    public void cancelled() {
+        super.cancelled();
+        updateMessage(currentEdge + " (cancelled)");
     }
 
     @Override
     public synchronized void update(Observable o, Object arg) {
+        if (isCancelled()) {
+            _koch.cancel();
+            cancelled();
+        }
         _edges.add((Edge)arg);
         
         currentEdge++;
         updateMessage("Number of Edges: " + currentEdge);
         updateProgress(currentEdge, _koch.getNrOfEdges() / 3);
-        updateValue(_edges);
+
         km.updateEdges((Edge)arg);
         
         try {

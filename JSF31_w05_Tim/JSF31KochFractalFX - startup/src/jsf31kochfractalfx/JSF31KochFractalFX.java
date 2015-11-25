@@ -350,7 +350,21 @@ public class JSF31KochFractalFX extends Application {
                 e.Y2 * zoom + zoomTranslateY,
                 e.color);
     }
-
+    
+    public void BindBars() {
+                progressBarLeft.setProgress(0);
+                progressBarLeft.progressProperty().bind(generateLeftEdge.progressProperty());
+                messageLabelLeft.textProperty().bind(generateLeftEdge.messageProperty());
+                
+                progressBarRight.setProgress(0);
+                progressBarRight.progressProperty().bind(generateRightEdge.progressProperty());
+                messageLabelRight.textProperty().bind(generateRightEdge.messageProperty());
+                
+                progressBarRight.setProgress(0);
+                progressBarRight.progressProperty().bind(generateRightEdge.progressProperty());
+                messageLabelRight.textProperty().bind(generateRightEdge.messageProperty());
+    }
+    
     public GenerateEdgeTask createTask(EdgeType type) {
         switch (type.name()) {
             case "LEFT":
@@ -386,10 +400,6 @@ public class JSF31KochFractalFX extends Application {
                 }
 
                 generateBottomEdge = new GenerateEdgeTask(currentLevel,type, kochManager);
-
-                progressBarBottom.setProgress(0);
-                progressBarBottom.progressProperty().bind(generateBottomEdge.progressProperty());
-                messageLabelBottom.textProperty().bind(generateBottomEdge.messageProperty());
 
                 return generateBottomEdge;
         }

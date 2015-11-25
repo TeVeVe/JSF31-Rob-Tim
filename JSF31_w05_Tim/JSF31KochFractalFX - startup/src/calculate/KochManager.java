@@ -60,11 +60,12 @@ public class KochManager{
             }
         });
 
-        executor = Executors.newFixedThreadPool(4);
+        executor = Executors.newFixedThreadPool(3);
     }
 
     public void changeLevel(int nxt) {
 
+        cancel();
         if(nxt == 0) {
             nxt = 1;
         }
@@ -85,37 +86,38 @@ public class KochManager{
             executor.submit(generateLeftEdge);
             executor.submit(generateRightEdge);
             executor.submit(generateBottomEdge);
+            
 
             System.out.println("Threads executed");
 
-            executor.execute(new Task<Void>() {
-                @Override
-                protected Void call() throws Exception {
-
-                    _application.clearKochPanel();
-
-                    while (!generateLeftEdge.isDone() || !generateRightEdge.isDone() || !generateBottomEdge.isDone()) {
-
-                        if(!generateLeftEdge.isDone()) {
-                            Edges.addAll(generateLeftEdge.getValue());
-                        }
-
-                        if(!generateRightEdge.isDone()) {
-                            Edges.addAll(generateRightEdge.getValue());
-                        }
-
-                        if(!generateBottomEdge.isDone()) {
-                            Edges.addAll(generateBottomEdge.getValue());
-                        }
-
-                        for(Edge e: Edges) {
-                            _application.drawEdge(e);
-                        }
-                    }
-
-                    return null;
-                }
-            });
+//            executor.execute(new Task<Void>() {
+//                @Override
+//                protected Void call() throws Exception {
+//
+//                    //_application.clearKochPanel();
+//
+//                    while (!generateLeftEdge.isDone() || !generateRightEdge.isDone() || !generateBottomEdge.isDone()) {
+//
+//                        if(!generateLeftEdge.isDone()) {
+//                            Edges.addAll(generateLeftEdge.getValue());
+//                        }
+//
+//                        if(!generateRightEdge.isDone()) {
+//                            Edges.addAll(generateRightEdge.getValue());
+//                        }
+//
+//                        if(!generateBottomEdge.isDone()) {
+//                            Edges.addAll(generateBottomEdge.getValue());
+//                        }
+//
+//                        for(Edge e: Edges) {
+//                            _application.drawEdge(e);
+//                        }
+//                    }
+//
+//                    return null;
+//                }
+//            });
             
             executor.execute(new Runnable() {
                 @Override
@@ -175,6 +177,17 @@ public class KochManager{
 
         _application.setTextDraw(ts.toString());
         _application.setTextNrEdges(Integer.toString(_koch.getNrOfEdges()));
+    }
+    
+    public void cancel() {
+        try {
+            generateBottomEdge.cancel(true);
+            generateLeftEdge.cancel(true);
+            generateRightEdge.cancel(true);
+            //_application.BindBars();
+        } catch (NullPointerException exception) {
+           
+        }
     }
     
     public synchronized void updateEdges(Edge e) {
