@@ -8,9 +8,6 @@ import javafx.concurrent.Task;
 import java.util.ArrayList;
 import java.util.Observable;
 import java.util.Observer;
-import java.util.concurrent.BrokenBarrierException;
-import java.util.concurrent.Callable;
-import java.util.concurrent.CyclicBarrier;
 
 /**
  * Created by tverv on 30-Sep-15.
@@ -20,7 +17,7 @@ public class GenerateEdgeTask extends Task<ArrayList<Edge>> implements Observer 
     private final KochFractal _koch;
     private final int _level;
     private ArrayList<Edge> _edges;
-    private int progress;
+    private int sleepTime;
     private int currentEdge;
     private KochManager km;
 
@@ -37,17 +34,20 @@ public class GenerateEdgeTask extends Task<ArrayList<Edge>> implements Observer 
     @Override
     public ArrayList<Edge> call() throws Exception {
 
-        progress = 0;
+        sleepTime = 0;
         _koch.setLevel(_level);
 
         switch (_type.name()) {
             case "LEFT":
+                sleepTime = 0;
                 _koch.generateLeftEdge();
                 break;
             case "RIGHT":
+                sleepTime = 1;
                 _koch.generateRightEdge();
                 break;
             case "BOTTOM":
+                sleepTime = 2;
                 _koch.generateBottomEdge();
                 break;
         }
@@ -60,13 +60,14 @@ public class GenerateEdgeTask extends Task<ArrayList<Edge>> implements Observer 
     public void cancelled() {
         super.cancelled();
         updateMessage(currentEdge + " (cancelled)");
+        System.out.println(currentEdge + " (cancelled)");
     }
 
     @Override
     public synchronized void update(Observable o, Object arg) {
         if (isCancelled()) {
             _koch.cancel();
-            cancelled();
+            //cancelled();
         }
         _edges.add((Edge)arg);
         
@@ -77,7 +78,7 @@ public class GenerateEdgeTask extends Task<ArrayList<Edge>> implements Observer 
         km.updateEdges((Edge)arg);
         
         try {
-            Thread.sleep(1);
+            Thread.sleep(sleepTime);
         } catch (InterruptedException ex) {
             if (isCancelled()) {
                 _koch.cancel();

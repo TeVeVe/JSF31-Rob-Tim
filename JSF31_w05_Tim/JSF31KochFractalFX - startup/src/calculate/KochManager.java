@@ -35,29 +35,22 @@ public class KochManager{
         _koch = application.Koch;
         ts = new TimeStamp();
         
-        cb = new CyclicBarrier(3, new Runnable()
-        {
-            @Override
-            public void run() {
-                ts.setEnd("After Calculating");
-                Platform.runLater(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                        Edges.addAll(generateLeftEdge.get());
-                        Edges.addAll(generateRightEdge.get());
-                        Edges.addAll(generateBottomEdge.get());
-                        } catch (InterruptedException | ExecutionException ex) {
-                            Logger.getLogger(KochManager.class.getName()).log(Level.SEVERE, null, ex);
-                        }
-                        _application.setTextCalc(ts.toString());                    
-                    }
-                });
+        cb = new CyclicBarrier(3, () -> {
+            ts.setEnd("After Calculating");
+            Platform.runLater(() -> {
+                try {
+                Edges.addAll(generateLeftEdge.get());
+                Edges.addAll(generateRightEdge.get());
+                Edges.addAll(generateBottomEdge.get());
+                } catch (InterruptedException | ExecutionException ex) {
+                    Logger.getLogger(KochManager.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                _application.setTextCalc(ts.toString());
+            });
 
-                System.out.println("requestDraw");
+            System.out.println("requestDraw");
 
-                _application.requestDrawEdges();
-            }
+            _application.requestDrawEdges();
         });
 
         executor = Executors.newFixedThreadPool(3);
@@ -119,29 +112,23 @@ public class KochManager{
 //                }
 //            });
             
-            executor.execute(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        cb.await();
-                    } catch (InterruptedException e) {
-                        return;
-                    } catch (BrokenBarrierException e) {
-                        return;
-                    }
+            executor.execute(() -> {
+                try {
+                    cb.await();
+                } catch (InterruptedException e) {
+                    return;
+                } catch (BrokenBarrierException e) {
+                    return;
                 }
             });
 
-            executor.execute(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        cb.await();
-                    } catch (InterruptedException e) {
-                        return;
-                    } catch (BrokenBarrierException e) {
-                        return;
-                    }
+            executor.execute(() -> {
+                try {
+                    cb.await();
+                } catch (InterruptedException e) {
+                    return;
+                } catch (BrokenBarrierException e) {
+                    return;
                 }
             });
 
@@ -181,9 +168,9 @@ public class KochManager{
     
     public void cancel() {
         try {
-            generateBottomEdge.cancel(true);
-            generateLeftEdge.cancel(true);
-            generateRightEdge.cancel(true);
+            generateBottomEdge.cancel();
+            generateLeftEdge.cancel();
+            generateRightEdge.cancel();
             //_application.BindBars();
         } catch (NullPointerException exception) {
            
