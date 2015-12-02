@@ -20,6 +20,7 @@ public class Edge implements Serializable {
     public double blue;
     
     public Edge(double X1, double Y1, double X2, double Y2, Color color) {
+        
         this.X1 = X1;
         this.Y1 = Y1;
         this.X2 = X2;
@@ -31,7 +32,7 @@ public class Edge implements Serializable {
             this.green = color.getGreen();
             this.blue = color.getBlue();
         } else {
-            this.color = Color.HOTPINK;
+            this.color = Color.WHITE;
         }
     }
     
