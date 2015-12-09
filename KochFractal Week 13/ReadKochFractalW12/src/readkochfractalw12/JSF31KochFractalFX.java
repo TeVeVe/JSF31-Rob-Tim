@@ -260,13 +260,12 @@ public class JSF31KochFractalFX extends Application {
         in.close();   
     }
     
-    public void TextInputStream() {
-
+    public void TextBufferendInputStream() {
+        
     }
     
-    public void TextBufferedInputStream() throws FileNotFoundException {
-        
-        
+    public void TextInputStream() throws FileNotFoundException {
+
         FileReader fileReader = new FileReader(file);
         scanner = new Scanner(fileReader);
         level = Integer.parseInt(scanner.nextLine());
