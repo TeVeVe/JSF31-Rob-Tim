@@ -24,10 +24,13 @@ import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
 import java.awt.*;
+import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.ObjectInput;
 import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.logging.Level;
@@ -206,8 +209,16 @@ public class JSF31KochFractalFX extends Application {
         gc.strokeLine(e1.X1,e1.Y1,e1.X2,e1.Y2);
     }
     
-    public void drawEdges() throws ClassNotFoundException, FileNotFoundException, IOException {
+    public void drawEdges() {
         clearKochPanel();
+        try {
+            BinnaryBufferedInputStream();
+        } catch (ClassNotFoundException | IOException ex) {
+            ex.printStackTrace();
+        }
+    }
+    
+    public void BinnaryInputStream() throws ClassNotFoundException, FileNotFoundException, IOException {
         FileInputStream fis;
         ObjectInputStream in;
 
@@ -221,6 +232,36 @@ public class JSF31KochFractalFX extends Application {
             drawEdge((Edge) in.readObject());
         }
         in.close();
+    }
+    
+    public void BinnaryBufferedInputStream() throws ClassNotFoundException, FileNotFoundException, IOException {
+        
+        byte [] buffer =null;
+        
+        DataInputStream dis = new DataInputStream(new FileInputStream(file));
+        int length = (int) file.length();
+        buffer = new byte [length];
+        dis.read(buffer);
+        dis.close();
+        
+        ByteArrayInputStream bis = new ByteArrayInputStream(buffer);
+        ObjectInput in = new ObjectInputStream(bis);
+
+        level = (int) in.readObject();
+        int nrOfEdges = (int) (3 * Math.pow(4, level - 1));
+
+        for (int i = 0; i < nrOfEdges; i++) {
+            drawEdge((Edge) in.readObject());
+        }
+        in.close();   
+    }
+    
+    public void TextInputStream() {
+        
+    }
+    
+    public void TextBufferedInputStream() {
+        
     }
     
     public void setTextNrEdges(String text) {
@@ -264,14 +305,8 @@ public class JSF31KochFractalFX extends Application {
 
     private void fitFractalButtonActionPerformed(ActionEvent event) {
         resetZoom();
-        try {
-            drawEdges();
-            //requestDrawEdges();
-        } catch (ClassNotFoundException ex) {
-            Logger.getLogger(JSF31KochFractalFX.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (IOException ex) {
-            Logger.getLogger(JSF31KochFractalFX.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        drawEdges();
+        //requestDrawEdges();
     }
     
     private void kochPanelMouseClicked(MouseEvent event) {
