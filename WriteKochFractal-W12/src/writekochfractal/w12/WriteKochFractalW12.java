@@ -16,10 +16,13 @@ import java.util.logging.Logger;
 import calculate.Edge;
 import calculate.KochFractal;
 import java.io.BufferedOutputStream;
+import java.io.BufferedWriter;
 import java.io.FileNotFoundException;
 
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.ObjectOutputStream;
+import java.io.PrintWriter;
 
 import timeutil.TimeStamp;
 
@@ -33,6 +36,7 @@ public class WriteKochFractalW12 implements Observer {
     FileOutputStream fos;
     BufferedOutputStream bos;
     ObjectOutputStream oos;
+    BufferedWriter bw;
     TimeStamp ts;
     /**
      * @param args the command line arguments
@@ -44,8 +48,6 @@ public class WriteKochFractalW12 implements Observer {
     }
     
     public void start() {
-        ts = new TimeStamp();
-        ts.setBegin("Begin Process");
         int level = 0;
         edges = new ArrayList();
         fractal = new KochFractal();
@@ -81,11 +83,18 @@ public class WriteKochFractalW12 implements Observer {
             exportBinNoBuffer(level);
         } else if(choice.equals("2")) {
             exportBinWithBuffer(level);
+        } else if(choice.equals("3")) {
+            exportTextNoBuffer(level);
+        } else if(choice.equals("4")) {
+            exportTextWithBuffer(level);
         }
     }
 
     private void exportBinNoBuffer(int level) {
         try {
+            ts = new TimeStamp();
+            ts.setBegin("Begin Process");
+            
             fos = new FileOutputStream("/home/jsf3/data/fractal.txt");
             oos = new ObjectOutputStream(fos);
             oos.writeObject(level);
@@ -109,11 +118,19 @@ public class WriteKochFractalW12 implements Observer {
     
     private void exportBinWithBuffer(int level) {
         try {
+            ts = new TimeStamp();
+            ts.setBegin("Begin Process");
+            
             fos = new FileOutputStream("/home/jsf3/data/fractal.txt");
             bos = new BufferedOutputStream(fos);
             oos = new ObjectOutputStream(bos);
             oos.writeObject(level);
             oos.writeObject(fractal.getNrOfEdges());
+            
+            for(Edge e: edges) {
+                oos.writeObject(e);
+            }
+            
             System.out.println("Data saved.");
         } catch (FileNotFoundException ex) {
             Logger.getLogger(WriteKochFractalW12.class.getName()).log(Level.SEVERE, null, ex);
@@ -125,16 +142,70 @@ public class WriteKochFractalW12 implements Observer {
         System.out.println(ts);
     }
     
-//    private void exportTextNoBuffer(int level) {
-//        try {
-//            fos = new FileOutputStream("/home/jsf3/data/fractal.txt");
-//            
-//        } catch (FileNotFoundException ex) {
-//            Logger.getLogger(WriteKochFractalW12.class.getName()).log(Level.SEVERE, null, ex);
-//        } catch (IOException ex) {
-//            Logger.getLogger(WriteKochFractalW12.class.getName()).log(Level.SEVERE, null, ex);
-//        }
-//    }
+    private void exportTextNoBuffer(int level) {
+        try {
+            ts = new TimeStamp();
+            ts.setBegin("Begin Process");
+            
+            fos = new FileOutputStream("/home/jsf3/data/fractal.txt");
+            PrintWriter pw = new PrintWriter(fos);
+            
+            pw.print(fractal.getNrOfEdges() + "\n");
+            pw.print(level + "\n");
+            
+            for(Edge e: edges) {
+                pw.print(e.X1 + "\n");
+                pw.print(e.X2 + "\n");
+                pw.print(e.Y1 + "\n");
+                pw.print(e.Y2 + "\n");
+                pw.print(e.r + "\n");
+                pw.print(e.g + "\n");
+                pw.print(e.b + "\n");
+            }
+            
+            System.out.println("Data saved.");
+            ts.setEnd("Einde proces");
+            System.out.println(ts);
+            
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(WriteKochFractalW12.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(WriteKochFractalW12.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    private void exportTextWithBuffer(int level) {
+        try {
+            ts = new TimeStamp();
+            ts.setBegin("Begin Process");
+            
+            fos = new FileOutputStream("/home/jsf3/data/fractal.txt");
+            PrintWriter pw = new PrintWriter(fos);
+            bw = new BufferedWriter(pw);
+            
+            bw.write(fractal.getNrOfEdges() + "\n");
+            bw.write(level + "\n");
+            
+            for(Edge e: edges) {
+                bw.write(e.X1 + "\n");
+                bw.write(e.X2 + "\n");
+                bw.write(e.Y1 + "\n");
+                bw.write(e.Y2 + "\n");
+                bw.write(e.r + "\n");
+                bw.write(e.g + "\n");
+                bw.write(e.b + "\n");
+            }
+            
+            System.out.println("Data saved.");
+            ts.setEnd("Einde proces");
+            System.out.println(ts);
+            
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(WriteKochFractalW12.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(WriteKochFractalW12.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
 
     @Override
     public void update(Observable o, Object arg) {
