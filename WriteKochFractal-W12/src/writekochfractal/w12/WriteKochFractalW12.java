@@ -15,11 +15,10 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import calculate.Edge;
 import calculate.KochFractal;
-import java.io.File;
-import java.io.FileNotFoundException;
+
 import java.io.FileOutputStream;
 import java.io.ObjectOutputStream;
-import sun.management.Agent;
+
 import timeutil.TimeStamp;
 
 /**
@@ -27,10 +26,11 @@ import timeutil.TimeStamp;
  * @author jsf3
  */
 public class WriteKochFractalW12 implements Observer {
-    ArrayList<Edge> edges;
+    ArrayList edges;
     KochFractal fractal;
     FileOutputStream fos;
     ObjectOutputStream oos;
+    TimeStamp ts;
     /**
      * @param args the command line arguments
      */
@@ -41,7 +41,7 @@ public class WriteKochFractalW12 implements Observer {
     }
     
     public void start() {
-        TimeStamp ts = new TimeStamp();
+        ts = new TimeStamp();
         ts.setBegin("Begin Process");
         int level = 0;
         edges = new ArrayList();
@@ -66,8 +66,11 @@ public class WriteKochFractalW12 implements Observer {
         fractal.generateBottomEdge();
         
         System.out.println(edges.size());
-        
-        
+
+        exportBinNoBuffer(level);
+    }
+
+    private void exportBinNoBuffer(int level) {
         try {
             fos = new FileOutputStream("/home/jsf3/data/fractal.txt");
             oos = new ObjectOutputStream(fos);
@@ -76,20 +79,18 @@ public class WriteKochFractalW12 implements Observer {
             oos.close();
             fos.close();
             System.out.println("Data saved.");
-            
-        } catch (FileNotFoundException ex) {
-            ex.printStackTrace();
+
         } catch (IOException ex) {
             ex.printStackTrace();
         }
-        
+
         ts.setEnd("Einde proces");
         System.out.println(ts);
     }
 
     @Override
     public void update(Observable o, Object arg) {
-        edges.add((Edge)arg);
+        edges.add(arg);
     }
     
 }
