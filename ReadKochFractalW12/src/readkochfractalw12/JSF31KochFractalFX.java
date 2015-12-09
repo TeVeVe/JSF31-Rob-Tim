@@ -189,7 +189,7 @@ public class JSF31KochFractalFX extends Application {
         Edge e1 = edgeAfterZoomAndDrag(e);
         
         // Set line color
-        gc.setStroke(e1.color);
+        gc.setStroke(Color.color(e1.r, e1.g, e1.b));
         
         // Set line width depending on level
         if (currentLevel <= 3) {
@@ -215,13 +215,12 @@ public class JSF31KochFractalFX extends Application {
         in = new ObjectInputStream(fis);
 
         level = (int) in.readObject();
+        int numberOfEdges = (int) in.readObject();
         System.out.println(level);
         int nrOfEdges = (int) (3 * Math.pow(4, level - 1));
 
-        ArrayList<Edge> edges = (ArrayList<Edge>)in.readObject();
-
-        for(Edge edge: edges) {
-            drawEdge(edge);
+        for(int i = 0; i < numberOfEdges; i++) {
+            drawEdge((Edge)in.readObject());
         }
 
         in.close();
@@ -324,7 +323,7 @@ public class JSF31KochFractalFX extends Application {
                 e.Y1 * zoom + zoomTranslateY,
                 e.X2 * zoom + zoomTranslateX,
                 e.Y2 * zoom + zoomTranslateY,
-                e.color);
+                Color.color(e.r, e.g, e.b));
     }
  
     /**

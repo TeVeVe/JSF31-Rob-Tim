@@ -29,10 +29,12 @@ import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectInputStream;
 import java.util.ArrayList;
+import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -51,6 +53,8 @@ public class JSF31KochFractalFX extends Application {
     private double startPressedY = 0.0;
     private double lastDragX = 0.0;
     private double lastDragY = 0.0;
+    
+    private Scanner scanner;
 
     // Koch manager
     // TO DO: Create class KochManager in package calculate
@@ -257,11 +261,64 @@ public class JSF31KochFractalFX extends Application {
     }
     
     public void TextInputStream() {
-        
+
     }
     
-    public void TextBufferedInputStream() {
+    public void TextBufferedInputStream() throws FileNotFoundException {
         
+        
+        FileReader fileReader = new FileReader(file);
+        scanner = new Scanner(fileReader);
+        level = Integer.parseInt(scanner.nextLine());
+        
+        String line;
+
+        int counter = 0;
+
+        double X1 = 0;
+        double Y1 = 0;
+        double X2 = 0;
+        double Y2 = 0;
+        Color color = new Color(0, 0, 0, 0);
+
+        while (scanner.hasNext())
+        {
+            line = scanner.next();
+            double red = 0;
+            double green = 0;
+            double blue = 0;
+
+            if (counter == 0) {
+                X1 = Double.parseDouble(line);
+                counter++;
+            }
+            else if (counter == 1)  {
+                X2 = Double.parseDouble(line);
+                counter++;
+            }
+            else if (counter == 2)  {
+                Y1 = Double.parseDouble(line);
+                counter++;
+            }
+            else if (counter == 3)  {
+                Y2 = Double.parseDouble(line);
+                counter++;
+            }
+            else if (counter == 4)  {
+                red = Double.parseDouble(line);
+            }
+            else if (counter == 5) {
+                green = Double.parseDouble(line);
+            }
+            else if (counter == 6) {
+                blue = Double.parseDouble(line);
+            }
+            
+            color = new Color(red, green, blue, 1);
+            drawEdge(new Edge(X1, Y1, X2, Y2, color));
+            }
+        
+        scanner.close();
     }
     
     public void setTextNrEdges(String text) {
