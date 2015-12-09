@@ -102,7 +102,7 @@ public class WriteKochFractalW12 implements Observer {
         } catch (IOException ex) {
             ex.printStackTrace();
         }
-
+        
         ts.setEnd("Einde proces");
         System.out.println(ts);
     }
