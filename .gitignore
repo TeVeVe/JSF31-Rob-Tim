@@ -20,4 +20,11 @@ JSF3_w07_StartProject/MovingBallsFX/.idea/
 *.iml
 MovingBallsFX2.0/.idea/
 /WriteKochFractal-W12/nbproject/private/
+<<<<<<< HEAD
 /nbproject/private/
+=======
+/WriteKochFractal-W12/build/
+/ReadKochFractalW11/nbproject/private/
+/ReadKochFractalW12/nbproject/private/
+/ReadKochFractalW12/build/
+>>>>>>> bbe27453caed9ba2c15e2fc2757defdd62172588

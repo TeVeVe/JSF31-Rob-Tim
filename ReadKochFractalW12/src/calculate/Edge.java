@@ -20,18 +20,20 @@ public class Edge implements Serializable {
     public double blue;
     
     public Edge(double X1, double Y1, double X2, double Y2, Color color) {
+        
         this.X1 = X1;
         this.Y1 = Y1;
         this.X2 = X2;
         this.Y2 = Y2;
-        color.getHue();
-        color.getBrightness();
-        color.getSaturation();
-    }
-    
-    private Color getColor() {
-        Color getColor = Color.hsb(blue, green, red);
-        return getColor;
+        
+        if(color != null) {
+            this.color = color;
+            this.red = color.getRed();
+            this.green = color.getGreen();
+            this.blue = color.getBlue();
+        } else {
+            this.color = Color.WHITE;
+        }
     }
     
     @Override

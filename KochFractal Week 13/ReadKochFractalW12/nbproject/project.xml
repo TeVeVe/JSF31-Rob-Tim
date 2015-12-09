@@ -18,7 +18,7 @@
                 <root id="src.src.dir"/>
             </source-roots>
             <test-roots>
-                <root id="test.src.dir"/>
+                <root id="test.tst.dir"/>
             </test-roots>
         </data>
     </configuration>
