@@ -21,10 +21,14 @@ public class Edge implements Serializable {
         this.Y1 = Y1;
         this.X2 = X2;
         this.Y2 = Y2;
-        
-        r = color.getRed();
-        g = color.getGreen();
-        b = color.getBlue();
+        color.getHue();
+        color.getBrightness();
+        color.getSaturation();
+    }
+    
+    private Color getColor() {
+        Color getColor = Color.hsb(r, g, b);
+        return getColor;
     }
     
     @Override

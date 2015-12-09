@@ -24,12 +24,17 @@ import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
 import java.awt.*;
+import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
+import java.io.ObjectInput;
 import java.io.ObjectInputStream;
 import java.util.ArrayList;
+import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -48,6 +53,8 @@ public class JSF31KochFractalFX extends Application {
     private double startPressedY = 0.0;
     private double lastDragX = 0.0;
     private double lastDragY = 0.0;
+    
+    private Scanner scanner;
 
     // Koch manager
     // TO DO: Create class KochManager in package calculate
@@ -206,8 +213,16 @@ public class JSF31KochFractalFX extends Application {
         gc.strokeLine(e1.X1,e1.Y1,e1.X2,e1.Y2);
     }
     
-    public void drawEdges() throws ClassNotFoundException, FileNotFoundException, IOException {
+    public void drawEdges() {
         clearKochPanel();
+        try {
+            BinnaryBufferedInputStream();
+        } catch (ClassNotFoundException | IOException ex) {
+            ex.printStackTrace();
+        }
+    }
+    
+    public void BinnaryInputStream() throws ClassNotFoundException, FileNotFoundException, IOException {
         FileInputStream fis;
         ObjectInputStream in;
 
@@ -221,6 +236,88 @@ public class JSF31KochFractalFX extends Application {
             drawEdge((Edge) in.readObject());
         }
         in.close();
+    }
+    
+    public void BinnaryBufferedInputStream() throws ClassNotFoundException, FileNotFoundException, IOException {
+        
+        byte [] buffer =null;
+        
+        DataInputStream dis = new DataInputStream(new FileInputStream(file));
+        int length = (int) file.length();
+        buffer = new byte [length];
+        dis.read(buffer);
+        dis.close();
+        
+        ByteArrayInputStream bis = new ByteArrayInputStream(buffer);
+        ObjectInput in = new ObjectInputStream(bis);
+
+        level = (int) in.readObject();
+        int nrOfEdges = (int) (3 * Math.pow(4, level - 1));
+
+        for (int i = 0; i < nrOfEdges; i++) {
+            drawEdge((Edge) in.readObject());
+        }
+        in.close();   
+    }
+    
+    public void TextBufferendInputStream() {
+        
+    }
+    
+    public void TextInputStream() throws FileNotFoundException {
+
+        FileReader fileReader = new FileReader(file);
+        scanner = new Scanner(fileReader);
+        level = Integer.parseInt(scanner.nextLine());
+        
+        String line;
+
+        int counter = 0;
+
+        double X1 = 0;
+        double Y1 = 0;
+        double X2 = 0;
+        double Y2 = 0;
+        Color color = new Color(0, 0, 0, 0);
+
+        while (scanner.hasNext())
+        {
+            line = scanner.next();
+            double red = 0;
+            double green = 0;
+            double blue = 0;
+
+            if (counter == 0) {
+                X1 = Double.parseDouble(line);
+                counter++;
+            }
+            else if (counter == 1)  {
+                X2 = Double.parseDouble(line);
+                counter++;
+            }
+            else if (counter == 2)  {
+                Y1 = Double.parseDouble(line);
+                counter++;
+            }
+            else if (counter == 3)  {
+                Y2 = Double.parseDouble(line);
+                counter++;
+            }
+            else if (counter == 4)  {
+                red = Double.parseDouble(line);
+            }
+            else if (counter == 5) {
+                green = Double.parseDouble(line);
+            }
+            else if (counter == 6) {
+                blue = Double.parseDouble(line);
+            }
+            
+            color = new Color(red, green, blue, 1);
+            drawEdge(new Edge(X1, Y1, X2, Y2, color));
+            }
+        
+        scanner.close();
     }
     
     public void setTextNrEdges(String text) {
@@ -264,14 +361,8 @@ public class JSF31KochFractalFX extends Application {
 
     private void fitFractalButtonActionPerformed(ActionEvent event) {
         resetZoom();
-        try {
-            drawEdges();
-            //requestDrawEdges();
-        } catch (ClassNotFoundException ex) {
-            Logger.getLogger(JSF31KochFractalFX.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (IOException ex) {
-            Logger.getLogger(JSF31KochFractalFX.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        drawEdges();
+        //requestDrawEdges();
     }
     
     private void kochPanelMouseClicked(MouseEvent event) {
