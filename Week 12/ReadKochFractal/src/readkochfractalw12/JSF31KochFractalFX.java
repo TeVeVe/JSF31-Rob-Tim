@@ -34,6 +34,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectInputStream;
+import java.io.RandomAccessFile;
 import java.util.ArrayList;
 import java.util.Scanner;
 import java.util.logging.Level;
@@ -330,8 +331,6 @@ public class JSF31KochFractalFX extends Application {
                 drawEdge(new Edge(X1, Y1, X2, Y2, Color.color(red, green, blue, 1)));
                 counter = 0;
             }
-            
-            
         }
         
         br.close();
@@ -395,14 +394,80 @@ public class JSF31KochFractalFX extends Application {
                 drawEdge(new Edge(X1, Y1, X2, Y2, Color.color(red, green, blue, 1)));
                 counter = 0;
             }
-            
-            
         }
         
         scanner.close();
         System.out.println("Done");
         ts.setEnd("Done");
         System.out.println(ts);
+    }
+    
+        public void RAFRead(int level) throws FileNotFoundException, IOException {
+        
+        String filePath = "/home/jsf3/data/fractal.txt";
+        ts = new TimeStamp();
+        ts.setBegin("Begin Process");
+        
+        RandomAccessFile file = new RandomAccessFile(filePath, "r");
+
+        // We send the number of edges but we don't 
+        file.readLine();
+        level = Integer.parseInt(file.readLine());
+             
+        String line;
+
+        int counter = 0;
+        double X1 = 0;
+        double Y1 = 0;
+        double X2 = 0;
+        double Y2 = 0;
+        double red = 0;
+        double green = 0;
+        double blue = 0;
+
+        while (true) //br.ready()
+        {
+            //line = br.readLine();
+            line = "2";
+
+            if (counter == 0) {
+                X1 = Double.parseDouble(line);
+                counter++;
+            }
+            else if (counter == 1)  {
+                X2 = Double.parseDouble(line);
+                counter++;
+            }
+            else if (counter == 2)  {
+                Y1 = Double.parseDouble(line);
+                counter++;
+            }
+            else if (counter == 3)  {
+                Y2 = Double.parseDouble(line);
+                counter++;
+            }
+            else if (counter == 4)  {
+                red = Double.parseDouble(line);
+                counter++;
+            }
+            else if (counter == 5) {
+                green = Double.parseDouble(line);
+                counter++;
+            }
+            else if (counter == 6) {
+                blue = Double.parseDouble(line);
+                counter++;
+                drawEdge(new Edge(X1, Y1, X2, Y2, Color.color(red, green, blue, 1)));
+                counter = 0;
+            }
+        }
+        
+        //br.close();
+        
+        //file.close();
+
+        //ts.setEnd("Einde proces");
+        //System.out.println(ts);
     }
     
     public void setTextNrEdges(String text) {
