@@ -132,6 +132,9 @@ public class WriteKochFractalW12 implements Observer {
                 oos.writeObject(e);
             }
             
+            oos.close();
+            fos.close();
+            
             System.out.println("Data saved.");
         } catch (FileNotFoundException ex) {
             Logger.getLogger(WriteKochFractalW12.class.getName()).log(Level.SEVERE, null, ex);
@@ -163,6 +166,9 @@ public class WriteKochFractalW12 implements Observer {
                 pw.print(e.g + "\n");
                 pw.print(e.b + "\n");
             }
+            
+            pw.close();
+            fos.close();
             
             System.out.println("Data saved.");
             ts.setEnd("Einde proces");
@@ -196,6 +202,9 @@ public class WriteKochFractalW12 implements Observer {
                 bw.write(e.g + "\n");
                 bw.write(e.b + "\n");
             }
+            
+            bw.close();
+            fos.close();
             
             System.out.println("Data saved.");
             ts.setEnd("Einde proces");
