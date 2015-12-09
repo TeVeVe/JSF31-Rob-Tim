@@ -14,10 +14,7 @@ import javafx.scene.paint.Color;
  */
 public class Edge implements Serializable {
     public double X1, Y1, X2, Y2;
-    public transient Color color;
-    public double red;
-    public double green;
-    public double blue;
+    public double r,g,b;
     
     public Edge(double X1, double Y1, double X2, double Y2, Color color) {
         this.X1 = X1;
@@ -25,18 +22,13 @@ public class Edge implements Serializable {
         this.X2 = X2;
         this.Y2 = Y2;
         
-        if(color != null) {
-            this.color = color;
-            this.red = color.getRed();
-            this.green = color.getGreen();
-            this.blue = color.getBlue();
-        } else {
-            this.color = Color.HOTPINK;
-        }
+        r = color.getRed();
+        g = color.getGreen();
+        b = color.getBlue();
     }
     
     @Override
     public Edge clone() {
-        return new Edge(X1, Y1, X2, Y2, color);
+        return new Edge(X1, Y1, X2, Y2, Color.color(r, g, b));
     }
 }

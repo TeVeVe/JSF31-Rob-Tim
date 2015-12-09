@@ -72,7 +72,12 @@ public class WriteKochFractalW12 implements Observer {
             fos = new FileOutputStream("/home/jsf3/data/fractal.txt");
             oos = new ObjectOutputStream(fos);
             oos.writeObject(level);
-            oos.writeObject(edges);
+            oos.writeObject(fractal.getNrOfEdges());
+            
+            for(Edge edge: edges) {
+                oos.writeObject(edge);
+            }
+            
             oos.close();
             fos.close();
             System.out.println("Data saved.");
