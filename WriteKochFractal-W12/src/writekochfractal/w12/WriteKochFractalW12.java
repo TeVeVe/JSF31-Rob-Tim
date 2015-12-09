@@ -1,4 +1,4 @@
-/*
+    /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
@@ -23,6 +23,7 @@ import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
+import java.io.RandomAccessFile;
 
 import timeutil.TimeStamp;
 
@@ -215,10 +216,37 @@ public class WriteKochFractalW12 implements Observer {
             Logger.getLogger(WriteKochFractalW12.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
+    
+    public void RASMapping(int level) throws FileNotFoundException, IOException {
+        String filePath = "/home/jsf3/data/fractal.txt";
+        
+        ts = new TimeStamp();
+        ts.setBegin("Begin Process");
+        
+        RandomAccessFile file = new RandomAccessFile(filePath, "r");
+        file.writeUTF(fractal.getNrOfEdges() + "\n");
+        file.writeUTF(level + "\n");
+            
+        for(Edge e: edges) {
+            file.writeUTF(e.X1 + "\n");
+            file.writeUTF(e.X2 + "\n");
+            file.writeUTF(e.Y1 + "\n");
+            file.writeUTF(e.Y2 + "\n");
+            file.writeUTF(e.r + "\n");
+            file.writeUTF(e.g + "\n");
+            file.writeUTF(e.b + "\n");
+        }
+        
+        file.close();
+
+        ts.setEnd("Einde proces");
+        System.out.println(ts);
+    }
+    
+    
 
     @Override
     public void update(Observable o, Object arg) {
         edges.add((Edge)arg);
-    }
-    
+    }    
 }
