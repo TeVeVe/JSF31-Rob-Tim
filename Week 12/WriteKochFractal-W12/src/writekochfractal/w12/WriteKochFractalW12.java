@@ -88,6 +88,8 @@ public class WriteKochFractalW12 implements Observer {
             exportTextNoBuffer(level);
         } else if(choice.equals("4")) {
             exportTextWithBuffer(level);
+        } else if(choice.equals("5")) {
+            RAFWrite(level);
         }
     }
 
@@ -217,13 +219,13 @@ public class WriteKochFractalW12 implements Observer {
         }
     }
     
-    public void RASMapping(int level) throws FileNotFoundException, IOException {
+    public void RAFWrite(int level) {
+    try {
         String filePath = "/home/jsf3/data/fractal.txt";
-        
         ts = new TimeStamp();
         ts.setBegin("Begin Process");
         
-        RandomAccessFile file = new RandomAccessFile(filePath, "r");
+        RandomAccessFile file = new RandomAccessFile(filePath, "w");
         file.writeUTF(fractal.getNrOfEdges() + "\n");
         file.writeUTF(level + "\n");
             
@@ -242,8 +244,10 @@ public class WriteKochFractalW12 implements Observer {
         ts.setEnd("Einde proces");
         System.out.println(ts);
     }
-    
-    
+    catch(IOException ex) {
+        ex.printStackTrace();
+    }
+}
 
     @Override
     public void update(Observable o, Object arg) {

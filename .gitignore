@@ -1,4 +1,4 @@
-*.class
+﻿*.class
 
 # Mobile Tools for Java (J2ME)
 .mtj.tmp/
@@ -20,20 +20,15 @@ JSF3_w07_StartProject/MovingBallsFX/.idea/
 *.iml
 MovingBallsFX2.0/.idea/
 /WriteKochFractal-W12/nbproject/private/
-<<<<<<< HEAD
 /nbproject/private/
-=======
 /WriteKochFractal-W12/build/
 /ReadKochFractalW11/nbproject/private/
-/ReadKochFractalW12/nbproject/private/
 /ReadKochFractalW12/build/
-<<<<<<< HEAD
->>>>>>> bbe27453caed9ba2c15e2fc2757defdd62172588
-=======
 /WriteKochFractal-W12/dist/
->>>>>>> c966ea7ae4b9f6ef357e8bbbdb7f693ac68f6ead
 /ReadKochFractal/nbproject/private/
 /ReadKochFractal/build/
 WriteKochFractal-W12/.idea/
 JSF31_w05_Tim/JSF31KochFractalFX - startup/nbproject/private/private.xml
 ReadKochFractal/.idea/
+/Week 12/ReadKochFractal/build/
+/Week 12/WriteKochFractal-W12/build/
