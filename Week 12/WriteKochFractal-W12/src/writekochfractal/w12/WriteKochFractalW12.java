@@ -63,7 +63,7 @@ public class WriteKochFractalW12 implements Observer {
             
             System.out.println("What method do you want to use to export? \n\n"
                     + "1. Binary without buffer \n2. Binary with buffer\n"
-                    + "3. Text without buffer \n4. Text with buffer\n");
+                    + "3. Text without buffer \n4. Text with buffer\n5. Random Access File");
             
             choice = br.readLine();            
             br.close();
@@ -225,18 +225,18 @@ public class WriteKochFractalW12 implements Observer {
         ts = new TimeStamp();
         ts.setBegin("Begin Process");
         
-        RandomAccessFile file = new RandomAccessFile(filePath, "w");
-        file.writeUTF(fractal.getNrOfEdges() + "\n");
-        file.writeUTF(level + "\n");
+        RandomAccessFile file = new RandomAccessFile(filePath, "rw");
+        file.writeBytes(fractal.getNrOfEdges() + "\n");
+        file.writeBytes(level + "\n");
             
         for(Edge e: edges) {
-            file.writeUTF(e.X1 + "\n");
-            file.writeUTF(e.X2 + "\n");
-            file.writeUTF(e.Y1 + "\n");
-            file.writeUTF(e.Y2 + "\n");
-            file.writeUTF(e.r + "\n");
-            file.writeUTF(e.g + "\n");
-            file.writeUTF(e.b + "\n");
+            file.writeBytes(e.X1 + "\n");
+            file.writeBytes(e.X2 + "\n");
+            file.writeBytes(e.Y1 + "\n");
+            file.writeBytes(e.Y2 + "\n");
+            file.writeBytes(e.r + "\n");
+            file.writeBytes(e.g + "\n");
+            file.writeBytes(e.b + "\n");
         }
         
         file.close();
