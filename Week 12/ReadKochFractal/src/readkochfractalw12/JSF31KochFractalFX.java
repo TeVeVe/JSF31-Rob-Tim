@@ -224,7 +224,7 @@ public class JSF31KochFractalFX extends Application {
     public void drawEdges() throws ClassNotFoundException {
         clearKochPanel();
         try {
-            TextBufferendInputStream();
+            RAFRead(level);
         } catch (IOException ex) {
             ex.printStackTrace();
         }
@@ -425,11 +425,10 @@ public class JSF31KochFractalFX extends Application {
         double green = 0;
         double blue = 0;
 
-        while (true) //br.ready()
-        {
-            //line = br.readLine();
-            line = "2";
-
+        line = file.readLine();
+        
+        while (line != null) 
+        {    
             if (counter == 0) {
                 X1 = Double.parseDouble(line);
                 counter++;
@@ -460,14 +459,14 @@ public class JSF31KochFractalFX extends Application {
                 drawEdge(new Edge(X1, Y1, X2, Y2, Color.color(red, green, blue, 1)));
                 counter = 0;
             }
+            
+            line = file.readLine();
         }
         
-        //br.close();
-        
-        //file.close();
+        file.close();
 
-        //ts.setEnd("Einde proces");
-        //System.out.println(ts);
+        ts.setEnd("Einde proces");
+        System.out.println(ts);
     }
     
     public void setTextNrEdges(String text) {
