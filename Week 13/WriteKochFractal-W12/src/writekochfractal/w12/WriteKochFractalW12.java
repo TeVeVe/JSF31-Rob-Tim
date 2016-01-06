@@ -25,6 +25,8 @@ import java.io.FileWriter;
 import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
 import java.io.RandomAccessFile;
+import java.nio.MappedByteBuffer;
+import java.nio.channels.FileChannel;
 
 import timeutil.TimeStamp;
 
@@ -41,6 +43,8 @@ public class WriteKochFractalW12 implements Observer {
     BufferedWriter bw;
     TimeStamp ts;
     File file;
+    MappedByteBuffer bbuffer;
+    
     /**
      * @param args the command line arguments
      */
@@ -232,21 +236,22 @@ public class WriteKochFractalW12 implements Observer {
         ts = new TimeStamp();
         ts.setBegin("Begin Process");
         
-        RandomAccessFile file = new RandomAccessFile(filePath, "rw");
-        file.writeBytes(fractal.getNrOfEdges() + "\n");
-        file.writeBytes(level + "\n");
+        RandomAccessFile RAFile = new RandomAccessFile(filePath, "rw");
+        FileChannel fc = RAFile.getChannel();
+        int length = (8 + (56 * fractal.getNrOfEdges()));
+        bbuffer = fc.map(FileChannel.MapMode.READ_WRITE, 0, length);       
+        bbuffer.putInt(fractal.getNrOfEdges());
+        bbuffer.putInt(level);
             
         for(Edge e: edges) {
-            file.writeBytes(e.X1 + "\n");
-            file.writeBytes(e.X2 + "\n");
-            file.writeBytes(e.Y1 + "\n");
-            file.writeBytes(e.Y2 + "\n");
-            file.writeBytes(e.r + "\n");
-            file.writeBytes(e.g + "\n");
-            file.writeBytes(e.b + "\n");
+            bbuffer.putDouble(e.X1);
+            bbuffer.putDouble(e.X2);
+            bbuffer.putDouble(e.Y1);
+            bbuffer.putDouble(e.Y2);
+            bbuffer.putDouble(e.r);
+            bbuffer.putDouble(e.g);
+            bbuffer.putDouble(e.b);
         }
-        
-        file.close();
 
         ts.setEnd("Einde proces");
         System.out.println(ts);
