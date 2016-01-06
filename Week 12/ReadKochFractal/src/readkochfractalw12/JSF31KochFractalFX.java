@@ -459,7 +459,7 @@ public class JSF31KochFractalFX extends Application {
                 drawEdge(new Edge(X1, Y1, X2, Y2, Color.color(red, green, blue, 1)));
                 counter = 0;
             }
-            
+            //System.out.println("Bla");
             line = file.readLine();
         }
         

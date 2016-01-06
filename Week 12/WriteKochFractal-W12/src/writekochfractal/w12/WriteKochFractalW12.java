@@ -17,6 +17,7 @@ import calculate.Edge;
 import calculate.KochFractal;
 import java.io.BufferedOutputStream;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileNotFoundException;
 
 import java.io.FileOutputStream;
@@ -39,6 +40,7 @@ public class WriteKochFractalW12 implements Observer {
     ObjectOutputStream oos;
     BufferedWriter bw;
     TimeStamp ts;
+    File file;
     /**
      * @param args the command line arguments
      */
@@ -53,6 +55,11 @@ public class WriteKochFractalW12 implements Observer {
         edges = new ArrayList();
         fractal = new KochFractal();
         String choice = "0";
+        
+        file = new File("/home/jsf3/data/fractal.txt");
+        if(file.exists()) {
+            file.delete();
+        }
         
         System.out.println("What level kochfractal do you want?");
         
