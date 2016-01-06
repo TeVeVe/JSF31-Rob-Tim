@@ -50,6 +50,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import timeutil.TimeStamp;
 
+import java.nio.MappedByteBuffer;
+import java.nio.channels.FileChannel;
+
 
 /**
  *
@@ -86,6 +89,7 @@ public class JSF31KochFractalFX extends Application {
     
     
     private File file = new File("/home/jsf3/data/fractal.txt");
+    private MappedByteBuffer bbuffer;
     private int level = 1;
     
     // Koch panel and its size
@@ -464,21 +468,19 @@ public class JSF31KochFractalFX extends Application {
         System.out.println(ts);
     }
     
-        public void RAFRead(int level) throws FileNotFoundException, IOException {
-        
+    public void RAFRead(int level) throws FileNotFoundException, IOException { 
         String filePath = "/home/jsf3/data/fractal_done.txt";
         ts = new TimeStamp();
         ts.setBegin("Begin Process");
         
-        RandomAccessFile file = new RandomAccessFile(filePath, "r");
+        RandomAccessFile RAFile = new RandomAccessFile(filePath, "r");
+        FileChannel fc = RAFile.getChannel();
+        bbuffer = fc.map(FileChannel.MapMode.READ_ONLY, 0, RAFile.length());
 
         // We send the number of edges but we don't 
-        file.readLine();
-        level = Integer.parseInt(file.readLine());
-             
-        String line;
+        int noOfEdges = bbuffer.getInt();
+        level = bbuffer.getInt();
 
-        int counter = 0;
         double X1 = 0;
         double Y1 = 0;
         double X2 = 0;
@@ -486,46 +488,17 @@ public class JSF31KochFractalFX extends Application {
         double red = 0;
         double green = 0;
         double blue = 0;
-
-        line = file.readLine();
         
-        while (line != null) 
-        {    
-            if (counter == 0) {
-                X1 = Double.parseDouble(line);
-                counter++;
-            }
-            else if (counter == 1)  {
-                X2 = Double.parseDouble(line);
-                counter++;
-            }
-            else if (counter == 2)  {
-                Y1 = Double.parseDouble(line);
-                counter++;
-            }
-            else if (counter == 3)  {
-                Y2 = Double.parseDouble(line);
-                counter++;
-            }
-            else if (counter == 4)  {
-                red = Double.parseDouble(line);
-                counter++;
-            }
-            else if (counter == 5) {
-                green = Double.parseDouble(line);
-                counter++;
-            }
-            else if (counter == 6) {
-                blue = Double.parseDouble(line);
-                counter++;
-                drawEdge(new Edge(X1, Y1, X2, Y2, Color.color(red, green, blue, 1)));
-                counter = 0;
-            }
-            //System.out.println("Bla");
-            line = file.readLine();
+        for(int i = 0; i < noOfEdges; i++) {
+            X1 = bbuffer.getDouble();
+            X2 = bbuffer.getDouble();
+            Y1 = bbuffer.getDouble();
+            Y2 = bbuffer.getDouble();
+            red = bbuffer.getDouble();
+            green = bbuffer.getDouble();
+            blue = bbuffer.getDouble();
+            drawEdge(new Edge(X1, Y1, X2, Y2, new Color(red, green, blue, 1.0)));
         }
-        
-        file.close();
 
         ts.setEnd("Einde proces");
         System.out.println(ts);

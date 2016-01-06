@@ -429,7 +429,7 @@ public class JSF31KochFractalFX extends Application {
         double green = 0;
         double blue = 0;
         
-        for(int i = 2; i <= noOfEdges; i++) {
+        for(int i = 0; i < noOfEdges; i++) {
             X1 = bbuffer.getDouble();
             X2 = bbuffer.getDouble();
             Y1 = bbuffer.getDouble();
