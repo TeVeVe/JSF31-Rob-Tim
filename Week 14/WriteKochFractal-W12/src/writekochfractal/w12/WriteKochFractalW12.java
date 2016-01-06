@@ -228,25 +228,32 @@ public class WriteKochFractalW12 implements Observer {
     
     public void RAFWrite(int level) {
     try {
-        String filePath = "/home/jsf3/data/fractal.txt";
+        String filePath = file.getPath();
         ts = new TimeStamp();
         ts.setBegin("Begin Process");
         
-        RandomAccessFile file = new RandomAccessFile(filePath, "rw");
-        file.writeBytes(fractal.getNrOfEdges() + "\n");
-        file.writeBytes(level + "\n");
+        RandomAccessFile rafFile = new RandomAccessFile(filePath, "rw");
+        rafFile.writeBytes(fractal.getNrOfEdges() + "\n");
+        rafFile.writeBytes(level + "\n");
             
         for(Edge e: edges) {
-            file.writeBytes(e.X1 + "\n");
-            file.writeBytes(e.X2 + "\n");
-            file.writeBytes(e.Y1 + "\n");
-            file.writeBytes(e.Y2 + "\n");
-            file.writeBytes(e.r + "\n");
-            file.writeBytes(e.g + "\n");
-            file.writeBytes(e.b + "\n");
+            rafFile.writeBytes(e.X1 + "\n");
+            rafFile.writeBytes(e.X2 + "\n");
+            rafFile.writeBytes(e.Y1 + "\n");
+            rafFile.writeBytes(e.Y2 + "\n");
+            rafFile.writeBytes(e.r + "\n");
+            rafFile.writeBytes(e.g + "\n");
+            rafFile.writeBytes(e.b + "\n");
         }
         
-        file.close();
+        rafFile.close();
+        
+        File file2 = new File("/home/jsf3/data/fractal_done.txt");
+        if(file2.exists()) {
+            file2.delete();
+        }
+        
+        file.renameTo(file2);
 
         ts.setEnd("Einde proces");
         System.out.println(ts);

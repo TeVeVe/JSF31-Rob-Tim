@@ -35,6 +35,15 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectInputStream;
 import java.io.RandomAccessFile;
+import java.nio.file.FileSystems;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import static java.nio.file.StandardWatchEventKinds.ENTRY_CREATE;
+import static java.nio.file.StandardWatchEventKinds.ENTRY_DELETE;
+import static java.nio.file.StandardWatchEventKinds.ENTRY_MODIFY;
+import java.nio.file.WatchEvent;
+import java.nio.file.WatchKey;
+import java.nio.file.WatchService;
 import java.util.ArrayList;
 import java.util.Scanner;
 import java.util.logging.Level;
@@ -178,6 +187,59 @@ public class JSF31KochFractalFX extends Application {
         primaryStage.setTitle("Koch Fractal");
         primaryStage.setScene(scene);
         primaryStage.show();
+        
+        watchFolder();
+    }
+    
+    private void watchFolder() {
+        Runnable wf = new Runnable() {
+
+            @Override
+            public void run() {
+                try {
+                    final WatchService watcher;
+                    // Voorbeelden van interessante locaties
+                    // Path dir = Paths.get("D:\\");
+                    Path dir = Paths.get("/home/jsf3/data/");
+                    WatchKey key;
+                    
+                    watcher = FileSystems.getDefault().newWatchService();
+                    dir.register(watcher, ENTRY_CREATE, ENTRY_DELETE, ENTRY_MODIFY);
+
+                    while (true) {
+                        key = watcher.take();
+                        for (WatchEvent<?> event : key.pollEvents()) {
+                            WatchEvent<Path> ev = (WatchEvent<Path>) event;
+
+                            Path filename = ev.context();
+                            Path child = dir.resolve(filename);
+
+                            WatchEvent.Kind kind = ev.kind();
+                            if (kind == ENTRY_CREATE) {
+                                if(child.getFileName().toString().equals("fractal_done.txt")) {
+                                    System.out.println("Bar");
+                                    try {
+                                        drawEdges();
+                                    } catch (ClassNotFoundException ex) {
+                                        Logger.getLogger(JSF31KochFractalFX.class.getName()).log(Level.SEVERE, null, ex);
+                                    }
+                                }
+                            }
+                        }
+                        key.reset();
+                    }
+
+                } catch (IOException | InterruptedException ex) {
+                    Logger.getLogger(JSF31KochFractalFX.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        };
+        
+        
+        System.out.println("Foo");
+        
+        Thread t = new Thread(wf);
+        t.start();
     }
     
     public void clearKochPanel() {
@@ -404,7 +466,7 @@ public class JSF31KochFractalFX extends Application {
     
         public void RAFRead(int level) throws FileNotFoundException, IOException {
         
-        String filePath = "/home/jsf3/data/fractal.txt";
+        String filePath = "/home/jsf3/data/fractal_done.txt";
         ts = new TimeStamp();
         ts.setBegin("Begin Process");
         
