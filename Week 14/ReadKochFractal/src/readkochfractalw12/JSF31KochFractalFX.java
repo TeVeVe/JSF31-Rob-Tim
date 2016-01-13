@@ -52,6 +52,7 @@ import timeutil.TimeStamp;
 
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
+import java.nio.channels.FileLock;
 
 
 /**
@@ -91,6 +92,7 @@ public class JSF31KochFractalFX extends Application {
     private File file = new File("/home/jsf3/data/fractal.txt");
     private MappedByteBuffer bbuffer;
     private int level = 1;
+    private int noOfEdges;
     
     // Koch panel and its size
     private Canvas kochPanel;
@@ -192,58 +194,148 @@ public class JSF31KochFractalFX extends Application {
         primaryStage.setScene(scene);
         primaryStage.show();
         
-        watchFolder();
+        checkFile();
     }
     
-    private void watchFolder() {
-        Runnable wf = new Runnable() {
-
+    private void checkFile() {
+        
+        Runnable cf = new Runnable() {
+            
+            FileLock lock = null;
+            
             @Override
             public void run() {
-                try {
-                    final WatchService watcher;
-                    // Voorbeelden van interessante locaties
-                    // Path dir = Paths.get("D:\\");
-                    Path dir = Paths.get("/home/jsf3/data/");
-                    WatchKey key;
-                    
-                    watcher = FileSystems.getDefault().newWatchService();
-                    dir.register(watcher, ENTRY_CREATE, ENTRY_DELETE, ENTRY_MODIFY);
+                String filePath = "/home/jsf3/data/fractal.txt";
 
-                    while (true) {
-                        key = watcher.take();
-                        for (WatchEvent<?> event : key.pollEvents()) {
-                            WatchEvent<Path> ev = (WatchEvent<Path>) event;
+                int progress = -1;
+                
+                while (progress == -1) {
+                    try {
+                        RandomAccessFile RAFile = new RandomAccessFile(filePath, "rw");
+                        FileChannel fc = RAFile.getChannel();
 
-                            Path filename = ev.context();
-                            Path child = dir.resolve(filename);
+                        lock = fc.lock(0, 12, false);
 
-                            WatchEvent.Kind kind = ev.kind();
-                            if (kind == ENTRY_CREATE) {
-                                if(child.getFileName().toString().equals("fractal_done.txt")) {
-                                    System.out.println("Bar");
-                                    try {
-                                        drawEdges();
-                                    } catch (ClassNotFoundException ex) {
-                                        Logger.getLogger(JSF31KochFractalFX.class.getName()).log(Level.SEVERE, null, ex);
-                                    }
-                                }
-                            }
-                        }
-                        key.reset();
+                        bbuffer = fc.map(FileChannel.MapMode.READ_ONLY, 0, RAFile.length());
+
+                        progress = bbuffer.getInt();
+                        noOfEdges = bbuffer.getInt();
+                        level = bbuffer.getInt();
+                        
+                        System.out.println("Progress: " + progress + " noOfEdges: " + noOfEdges + " level: " + level);
+                        
+                        bbuffer.clear();
+                        lock.release();
+                        
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
                     }
+                }
+                int i = 0;
+                clearKochPanel();
+                
+                try {
+                    RandomAccessFile RAFile = new RandomAccessFile(filePath, "rw");
+                    FileChannel fc = RAFile.getChannel();
+                    while(true) {
 
-                } catch (IOException | InterruptedException ex) {
+                        int newProgress = getProgress();
+                        
+                        if(newProgress != progress) {
+
+                            RAFile = new RandomAccessFile(filePath, "rw");
+                            fc = RAFile.getChannel();
+
+                            lock = fc.lock(0, 12, false);
+
+                            bbuffer.clear();
+                            bbuffer = fc.map(FileChannel.MapMode.READ_ONLY, 4, RAFile.length());
+
+                            progress = newProgress;
+                            noOfEdges = bbuffer.getInt();
+                            level = bbuffer.getInt();
+                            i = 0;
+
+                            System.out.println("Progress: " + progress + " noOfEdges: " + noOfEdges + " level: " + level);
+
+                            lock.release();
+                            clearKochPanel();
+                        } else {
+                            progress = newProgress;
+                        }
+                        
+                        System.out.println(progress);
+                        do {
+                            lock = fc.lock(12 + i * (7 * 8), 12 + progress * (7 * 8), false);
+                            bbuffer = fc.map(FileChannel.MapMode.READ_ONLY, 12 + i * (7 * 8), RAFile.length());
+                            while(i < progress) {
+                                
+                                double X1 = bbuffer.getDouble();
+                                double X2 = bbuffer.getDouble();
+                                double Y1 = bbuffer.getDouble();
+                                double Y2 = bbuffer.getDouble();
+                                double red = bbuffer.getDouble();
+                                double green = bbuffer.getDouble();
+                                double blue = bbuffer.getDouble();
+
+                                
+                                drawEdge(new Edge(X1, Y1, X2, Y2, new Color(red, green, blue, 1.0)));
+
+                                i += 1;  
+                                
+                                System.out.println("i: " + i + " - progress: " + progress);
+                            }
+
+                            lock.release();
+
+                            if(progress == noOfEdges) { break;}
+                            
+                            progress = getProgress();
+                            
+
+
+                        } while(progress < noOfEdges);
+                        
+                        
+                        Thread.sleep(500);
+                    }
+                } catch(FileNotFoundException ex) {
+                        ex.printStackTrace();
+                } catch (IOException ex) {
+                    Logger.getLogger(JSF31KochFractalFX.class.getName()).log(Level.SEVERE, null, ex);
+                } catch (InterruptedException ex) {
                     Logger.getLogger(JSF31KochFractalFX.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
         };
         
-        
-        System.out.println("Foo");
-        
-        Thread t = new Thread(wf);
+        Thread t = new Thread(cf);
         t.start();
+    }
+    
+    public int getProgress() {
+        String filePath = "/home/jsf3/data/fractal.txt";
+        try {
+            RandomAccessFile RAFile = new RandomAccessFile(filePath, "rw");
+            FileChannel fc = RAFile.getChannel();
+            FileLock lock = fc.lock(0, 4, false);
+            bbuffer = fc.map(FileChannel.MapMode.READ_ONLY, 0, RAFile.length());
+
+            lock.release();
+            RAFile.close();
+            
+            int prog =  bbuffer.getInt();
+            bbuffer.clear();
+            
+            return prog;
+
+        } catch(FileNotFoundException ex) {
+            ex.printStackTrace();
+            return -1;
+        } catch (IOException ex) {
+            Logger.getLogger(JSF31KochFractalFX.class.getName()).log(Level.SEVERE, null, ex);
+            return -1;
+        }
     }
     
     public void clearKochPanel() {

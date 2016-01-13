@@ -27,6 +27,7 @@ import java.io.PrintWriter;
 import java.io.RandomAccessFile;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
+import java.nio.channels.FileLock;
 
 import timeutil.TimeStamp;
 
@@ -60,11 +61,6 @@ public class WriteKochFractalW12 implements Observer {
         fractal = new KochFractal();
         String choice = "0";
         
-        file = new File("/home/jsf3/data/fractal.txt");
-        if(file.exists()) {
-            file.delete();
-        }
-        
         System.out.println("What level kochfractal do you want?");
         
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
@@ -86,11 +82,17 @@ public class WriteKochFractalW12 implements Observer {
         fractal.setLevel(level);
         
         fractal.generateLeftEdge();
-        fractal.generateRightEdge();
         fractal.generateBottomEdge();
+        fractal.generateRightEdge();
+        
         
         System.out.println(edges.size());
 
+        file = new File("/home/jsf3/data/fractal.txt");
+        if(file.exists()) {
+            file.delete();
+        }
+        
         if(choice.equals("1")) {
             exportBinNoBuffer(level);
         } else if(choice.equals("2")) {
@@ -231,42 +233,60 @@ public class WriteKochFractalW12 implements Observer {
     }
     
     public void RAFWrite(int level) {
-    try {
-        String filePath = "/home/jsf3/data/fractal.txt";
-        ts = new TimeStamp();
-        ts.setBegin("Begin Process");
+        FileLock exclusiveLock = null;
+        FileLock sharedLock = null;
         
-        RandomAccessFile RAFile = new RandomAccessFile(filePath, "rw");
-        FileChannel fc = RAFile.getChannel();
-        int length = (8 + (56 * fractal.getNrOfEdges()));
-        bbuffer = fc.map(FileChannel.MapMode.READ_WRITE, 0, length);       
-        bbuffer.putInt(fractal.getNrOfEdges());
-        bbuffer.putInt(level);
+        try {
+            String filePath = "/home/jsf3/data/fractal.txt";
+            ts = new TimeStamp();
+            ts.setBegin("Begin Process");
+
+            RandomAccessFile RAFile = new RandomAccessFile(filePath, "rw");
+            FileChannel fc = RAFile.getChannel();
+            int length = (12 + (56 * fractal.getNrOfEdges()));
+            exclusiveLock = fc.lock(0, length, true);
             
-        for(Edge e: edges) {
-            bbuffer.putDouble(e.X1);
-            bbuffer.putDouble(e.X2);
-            bbuffer.putDouble(e.Y1);
-            bbuffer.putDouble(e.Y2);
-            bbuffer.putDouble(e.r);
-            bbuffer.putDouble(e.g);
-            bbuffer.putDouble(e.b);
-        }
+            bbuffer = fc.map(FileChannel.MapMode.READ_WRITE, 0, length);       
+            
+            bbuffer.putInt(0);
+            bbuffer.putInt(fractal.getNrOfEdges());
+            bbuffer.putInt(level);
+            
+            exclusiveLock.release();
+            exclusiveLock = fc.lock(12, length, true);
 
-        
-        File file2 = new File("/home/jsf3/data/fractal_done.txt");
-        if(file2.exists()) {
-            file2.delete();
-        }
-        
-        file.renameTo(file2);
+            int i = 0;
+            
+            for(Edge e: edges) {   
+                bbuffer.putDouble(e.X1);
+                bbuffer.putDouble(e.X2);
+                bbuffer.putDouble(e.Y1);
+                bbuffer.putDouble(e.Y2);
+                bbuffer.putDouble(e.r);
+                bbuffer.putDouble(e.g);
+                bbuffer.putDouble(e.b);
+                
+                i++;
+                bbuffer.putInt(0, i);
+                System.out.println(i);
+                
+                exclusiveLock.release();
+                exclusiveLock = fc.lock(i * 56 + 12 + 1, length, true);
+                
+                if(sharedLock != null) {
+                    sharedLock.release();
+                }
+                
+                sharedLock = fc.lock(0, i * 56 + 12, false);
+                
+            }
 
-        ts.setEnd("Einde proces");
-        System.out.println(ts);
-    }
-    catch(IOException ex) {
-        ex.printStackTrace();
-    }
+            ts.setEnd("Einde proces");
+            System.out.println(ts);
+        }
+        catch(IOException ex) {
+            ex.printStackTrace();
+        }
 }
 
     @Override
