@@ -214,9 +214,9 @@ public class JSF31KochFractalFX extends Application {
                         RandomAccessFile RAFile = new RandomAccessFile(filePath, "rw");
                         FileChannel fc = RAFile.getChannel();
 
-                        lock = fc.lock(0, 12, false);
+                        lock = fc.lock(0, 12, true);
 
-                        bbuffer = fc.map(FileChannel.MapMode.READ_ONLY, 0, RAFile.length());
+                        bbuffer = fc.map(FileChannel.MapMode.READ_ONLY, 0, 100000000);
 
                         progress = bbuffer.getInt();
                         noOfEdges = bbuffer.getInt();
@@ -246,10 +246,10 @@ public class JSF31KochFractalFX extends Application {
                             RAFile = new RandomAccessFile(filePath, "rw");
                             fc = RAFile.getChannel();
 
-                            lock = fc.lock(0, 12, false);
+                            lock = fc.lock(0, 12, true);
 
                             bbuffer.clear();
-                            bbuffer = fc.map(FileChannel.MapMode.READ_ONLY, 4, RAFile.length());
+                            bbuffer = fc.map(FileChannel.MapMode.READ_ONLY, 4, 100000000);
 
                             progress = newProgress;
                             noOfEdges = bbuffer.getInt();
@@ -264,10 +264,10 @@ public class JSF31KochFractalFX extends Application {
                             progress = newProgress;
                         }
                         
-                        System.out.println(progress);
+                        System.out.println(noOfEdges);
                         do {
-                            lock = fc.lock(12 + i * (7 * 8), 12 + progress * (7 * 8), false);
-                            bbuffer = fc.map(FileChannel.MapMode.READ_ONLY, 12 + i * (7 * 8), RAFile.length());
+                            lock = fc.lock(12 + i * (7 * 8), 12 + progress * (7 * 8), true);
+                            bbuffer = fc.map(FileChannel.MapMode.READ_ONLY, 12 + i * (7 * 8), 100000000);
                             while(i < progress) {
                                 
                                 double X1 = bbuffer.getDouble();
@@ -281,9 +281,9 @@ public class JSF31KochFractalFX extends Application {
                                 
                                 drawEdge(new Edge(X1, Y1, X2, Y2, new Color(red, green, blue, 1.0)));
 
-                                i += 1;  
+                                i += 1;
                                 
-                                System.out.println("i: " + i + " - progress: " + progress);
+                                System.out.println(i + "/" + progress);
                             }
 
                             lock.release();
@@ -318,7 +318,7 @@ public class JSF31KochFractalFX extends Application {
         try {
             RandomAccessFile RAFile = new RandomAccessFile(filePath, "rw");
             FileChannel fc = RAFile.getChannel();
-            FileLock lock = fc.lock(0, 4, false);
+            FileLock lock = fc.lock(0, 4, true);
             bbuffer = fc.map(FileChannel.MapMode.READ_ONLY, 0, RAFile.length());
 
             lock.release();
