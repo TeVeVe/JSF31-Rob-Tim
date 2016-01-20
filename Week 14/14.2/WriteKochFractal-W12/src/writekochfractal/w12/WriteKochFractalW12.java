@@ -244,7 +244,7 @@ public class WriteKochFractalW12 implements Observer {
             RandomAccessFile RAFile = new RandomAccessFile(filePath, "rw");
             FileChannel fc = RAFile.getChannel();
             int length = (12 + (56 * fractal.getNrOfEdges()));
-            exclusiveLock = fc.lock(0, length, true);
+            exclusiveLock = fc.lock(0, 12, false);
             
             bbuffer = fc.map(FileChannel.MapMode.READ_WRITE, 0, length);       
             
@@ -253,11 +253,13 @@ public class WriteKochFractalW12 implements Observer {
             bbuffer.putInt(level);
             
             exclusiveLock.release();
-            exclusiveLock = fc.lock(12, length, true);
+            exclusiveLock = fc.lock(12, length, false);
 
             int i = 0;
             
             for(Edge e: edges) {   
+                
+                
                 bbuffer.putDouble(e.X1);
                 bbuffer.putDouble(e.X2);
                 bbuffer.putDouble(e.Y1);
@@ -267,18 +269,22 @@ public class WriteKochFractalW12 implements Observer {
                 bbuffer.putDouble(e.b);
                 
                 i++;
-                bbuffer.putInt(0, i);
-                System.out.println(i);
-                
-                exclusiveLock.release();
-                exclusiveLock = fc.lock(i * 56 + 12 + 1, length, true);
                 
                 if(sharedLock != null) {
                     sharedLock.release();
                 }
                 
-                sharedLock = fc.lock(0, i * 56 + 12, false);
+                exclusiveLock.release();
+                exclusiveLock = fc.lock(0,4,false);
                 
+                bbuffer.putInt(0, i);
+                System.out.println(i);
+                exclusiveLock.release();
+                //bbuffer.clear();
+                
+                exclusiveLock = fc.lock(i * 56 + 12 + 1, length, false);
+                
+                sharedLock = fc.lock(0, i * 56 + 12, true);
             }
 
             ts.setEnd("Einde proces");
