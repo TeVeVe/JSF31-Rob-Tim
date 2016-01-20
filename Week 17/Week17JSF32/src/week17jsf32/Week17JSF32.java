@@ -45,20 +45,19 @@ public class Week17JSF32 {
             long multiplier = IntR1.getValue() * IntR2.getValue();
             long free = (IntR3.getValue() * multiplier) / 1073741824;
             long total = (IntR4.getValue() * multiplier) / 1073741824;
-            System.out.printf("'C:\\': free: " + free + ", total: " + total);
+            System.out.println("'C:\\': free: " + free + ", total: " + total);
         } else {
-            System.out.printf("GetDiskFreeSpaceEx() returned false");
+            System.out.println("GetDiskFreeSpaceEx() returned false");
         }
         
         char[] charss = {'C', ':', '\\'};
-        
         if (lib.GetDiskFreeSpaceW(charss, IntR1, IntR2, IntR3, IntR4)) {
             long multiplier = IntR1.getValue() * IntR2.getValue();
             long free = (IntR3.getValue() * multiplier) / 1073741824;
             long total = (IntR4.getValue() * multiplier) / 1073741824;
-            System.out.printf("'C:\\': free: " + free + ", total: " + total);
+            System.out.println("'C:\\': free: " + free + ", total: " + total);
         } else {
-            System.out.printf("GetDiskFreeSpaceEx() returned false");
+            System.out.println("GetDiskFreeSpaceEx() returned false");
         }
 
     }
